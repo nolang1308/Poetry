@@ -1,0 +1,18 @@
+// Pencil 디자인 토큰
+$accent: #3f5a4e;
+$accent-soft: #a9b7ab;
+$bg: #f5f1e8;
+$ink: #2b2823;
+$ink-faint: #928b7d;
+$ink-soft: #5c564c;
+$line: #e3dccc;
+$surface: #fcfaf4;
+
+$font-body: 'Noto Sans KR', sans-serif;
+$font-serif: 'Nanum Myeongjo', serif;
+
+// Web 콘텐츠 최대 폭 (넓은 디스플레이에서 좌우로 벌어지지 않도록 제한)
+$max-content: 1560px;
+
+// Web <-> Mobile 전환 기준
+$breakpoint-mobile: 768px;

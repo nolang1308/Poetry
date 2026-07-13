@@ -1,0 +1,85 @@
+@use '../styles/variables' as *;
+
+// Pencil "Poem Cover" 컴포넌트
+.poem-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  text-decoration: none;
+
+  &__cover {
+    width: 100%;
+    aspect-ratio: 3 / 4; // Web 기본 비율 (240×320)
+    border-radius: 3px;
+    background-color: $accent-soft;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 10px 24px -6px rgba(43, 40, 35, 0.2);
+    transition:
+      transform 0.35s ease,
+      box-shadow 0.35s ease;
+    will-change: transform;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: $ink;
+    transition: color 0.2s ease;
+  }
+
+  // 마우스 사용 환경에서만 호버 효과 적용
+  @media (hover: hover) {
+    &:hover &__cover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 44px -10px rgba(43, 40, 35, 0.38);
+    }
+
+    &:hover &__title {
+      color: $accent;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__likes {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__heart {
+    color: $accent;
+  }
+
+  &__like-count {
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+  }
+
+  &__dot {
+    font-size: 13px;
+    color: $ink-faint;
+  }
+
+  &__date {
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-faint;
+  }
+}

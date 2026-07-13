@@ -1,0 +1,32 @@
+@use '../styles/variables' as *;
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 40px;
+  z-index: 200;
+  display: inline-flex;
+  align-items: center;
+  padding: 13px 22px;
+  font-family: $font-body;
+  font-size: 14px;
+  font-weight: 500;
+  color: $surface;
+  background-color: rgba(43, 40, 35, 0.92);
+  border-radius: 100px;
+  box-shadow: 0 12px 30px -10px rgba(43, 40, 35, 0.5);
+  white-space: nowrap;
+  pointer-events: none;
+
+  // 기본은 숨김(아래로 내려가고 투명)
+  opacity: 0;
+  transform: translate(-50%, 16px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+
+  &--show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}

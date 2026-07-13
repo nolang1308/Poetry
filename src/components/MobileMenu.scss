@@ -1,0 +1,99 @@
+@use '../styles/variables' as *;
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none; // 닫혀 있으면 클릭 통과
+
+  &--open {
+    pointer-events: auto;
+  }
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(43, 40, 35, 0.42);
+    opacity: 0;
+    transition: opacity 0.28s ease;
+
+    .mobile-menu--open & {
+      opacity: 1;
+    }
+  }
+
+  &__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    width: 78%;
+    max-width: 320px;
+    height: 100%;
+    padding: 20px 24px;
+    background-color: $surface;
+    box-shadow: -20px 0 50px -20px rgba(43, 40, 35, 0.4);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+
+    .mobile-menu--open & {
+      transform: translateX(0);
+    }
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid $line;
+  }
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: $font-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__mark {
+    color: $accent;
+  }
+
+  &__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    color: $ink-soft;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  &__links {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__link {
+    display: block;
+    padding: 16px 4px;
+    font-family: $font-serif;
+    font-size: 20px;
+    color: $ink;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(227, 220, 204, 0.6);
+
+    &:active {
+      color: $accent;
+    }
+  }
+}

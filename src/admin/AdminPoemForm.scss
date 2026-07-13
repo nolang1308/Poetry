@@ -1,0 +1,227 @@
+@use '../styles/variables' as *;
+
+.admin-form {
+  min-height: 100vh;
+  background-color: $bg;
+
+  &__container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px clamp(20px, 4vw, 48px) 80px;
+  }
+
+  &__back {
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-soft;
+    text-decoration: none;
+
+    &:hover {
+      color: $ink;
+    }
+  }
+
+  &__title {
+    margin: 16px 0 32px;
+    font-family: $font-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 40px;
+    align-items: start;
+  }
+
+  &__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__label {
+    font-family: $font-body;
+    font-size: 13px;
+    font-weight: 500;
+    color: $ink-soft;
+  }
+
+  &__input,
+  &__textarea {
+    font-family: $font-body;
+    font-size: 15px;
+    color: $ink;
+    padding: 12px 14px;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 4px;
+    outline: none;
+
+    &::placeholder {
+      color: $ink-faint;
+    }
+
+    &:focus {
+      border-color: $accent;
+    }
+  }
+
+  &__textarea {
+    resize: vertical;
+    min-height: 140px;
+    line-height: 1.7;
+
+    &--short {
+      min-height: 90px;
+    }
+  }
+
+  &__row {
+    display: flex;
+    gap: 16px;
+  }
+
+  &__field--half {
+    flex: 1;
+  }
+
+  // 파일 업로드
+  &__file {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  &__file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &__file-btn {
+    flex-shrink: 0;
+    padding: 11px 18px;
+    font-family: $font-body;
+    font-size: 14px;
+    font-weight: 500;
+    color: $ink;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 4px;
+
+    .admin-form__file:hover & {
+      border-color: $accent;
+      color: $accent;
+    }
+  }
+
+  &__file-name {
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-faint;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__preview {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__cover {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 3px;
+    background-color: $accent-soft;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 10px 22px -8px rgba(43, 40, 35, 0.22);
+  }
+
+  &__preview-title {
+    margin: 4px 0 0;
+    font-family: $font-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__preview-meta {
+    margin: 0;
+    font-family: $font-body;
+    font-size: 12px;
+    color: $ink-faint;
+  }
+
+  &__error {
+    margin: 20px 0 0;
+    font-family: $font-body;
+    font-size: 13px;
+    color: #b5443a;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  &__cancel {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-soft;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 4px;
+    text-decoration: none;
+
+    &:hover {
+      color: $ink;
+    }
+  }
+
+  &__submit {
+    padding: 12px 28px;
+    font-family: $font-body;
+    font-size: 14px;
+    font-weight: 700;
+    color: $surface;
+    background-color: $accent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #354d43;
+    }
+  }
+
+  @media (max-width: 640px) {
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+
+    &__preview {
+      order: -1;
+      max-width: 200px;
+    }
+  }
+}

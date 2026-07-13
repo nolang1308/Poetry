@@ -1,0 +1,161 @@
+@use '../styles/variables' as *;
+
+.mobile-poems {
+  display: none; // 좁은 화면에서만 표시
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background-color: $bg;
+
+  // Top Bar
+  &__top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 20px;
+  }
+
+  &__icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: $ink;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__divider {
+    width: 100%;
+    height: 1px;
+    background-color: $line;
+  }
+
+  // Body
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px 20px 0;
+  }
+
+  &__search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 46px;
+    padding: 0 18px;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 23px;
+  }
+
+  &__search-icon {
+    color: $ink-faint;
+    flex-shrink: 0;
+  }
+
+  &__search-input {
+    flex: 1;
+    min-width: 0;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink;
+    background: transparent;
+    border: none;
+    outline: none;
+
+    &::placeholder {
+      color: $ink-faint;
+    }
+  }
+
+  &__chips {
+    display: flex;
+    gap: 8px;
+  }
+
+  &__chip {
+    font-family: $font-body;
+    font-size: 13px;
+    font-weight: 400;
+    color: $ink-soft;
+    padding: 8px 16px;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 16px;
+    cursor: pointer;
+
+    &--active {
+      font-weight: 700;
+      color: $surface;
+      background-color: $accent;
+      border-color: $accent;
+    }
+  }
+
+  // Grid (2열)
+  &__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  &__row > * {
+    min-width: 0;
+  }
+
+  // 표지 비율을 일반 책 비율(2:3)로 변경
+  .poem-card__cover {
+    aspect-ratio: 2 / 3;
+  }
+
+  &__empty {
+    padding: 60px 0;
+    text-align: center;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-faint;
+  }
+
+  // Loading Hint
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 36px 0 44px;
+  }
+
+  &__spinner {
+    color: $ink-faint;
+  }
+
+  &__loading-text {
+    font-family: $font-body;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: $ink-faint;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    display: flex;
+  }
+}

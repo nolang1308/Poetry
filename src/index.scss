@@ -1,0 +1,96 @@
+@use './styles/variables' as *;
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: $font-body;
+  color: $ink;
+  background-color: $bg;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.poem-detail-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-family: $font-body;
+  font-size: 15px;
+  color: $ink-faint;
+}
+
+// ── View Transitions ──────────────────────────────────
+@media (prefers-reduced-motion: no-preference) {
+  // 재정렬 시 표지들이 각자 새 위치로 부드럽게 이동 (지원 브라우저)
+  ::view-transition-group(*) {
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  // 표지 -> 상세 사진: 부드럽게 커지며 이동(morph)
+  ::view-transition-group(poem-cover) {
+    animation-duration: 0.55s;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  ::view-transition-image-pair(poem-cover) {
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px -20px rgba(43, 40, 35, 0.45);
+  }
+
+  // 오른쪽 시 본문: 책이 펼쳐지듯 안쪽 모서리(스파인)를 축으로 열림
+  ::view-transition-old(poem-page) {
+    animation: none;
+    opacity: 0;
+  }
+
+  ::view-transition-new(poem-page) {
+    animation: poem-page-open 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    transform-origin: left center;
+  }
+
+  @keyframes poem-page-open {
+    from {
+      transform: perspective(1600px) rotateY(-108deg);
+      opacity: 0;
+    }
+    55% {
+      opacity: 1;
+    }
+    to {
+      transform: perspective(1600px) rotateY(0deg);
+      opacity: 1;
+    }
+  }
+
+  // 나머지 화면(내비/노트 등)은 은은한 페이드
+  ::view-transition-old(root) {
+    animation: vt-fade 0.4s ease both reverse;
+  }
+  ::view-transition-new(root) {
+    animation: vt-fade 0.5s ease both;
+  }
+
+  @keyframes vt-fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

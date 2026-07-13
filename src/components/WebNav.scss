@@ -1,0 +1,60 @@
+@use '../styles/variables' as *;
+
+$pad-x: clamp(48px, 5vw, 88px);
+
+.web-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: $max-content;
+  margin: 0 auto;
+  padding: 32px $pad-x;
+  background-color: $bg;
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  &__brand-mark {
+    font-family: $font-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: $accent;
+  }
+
+  &__brand-name {
+    font-family: $font-serif;
+    font-size: 21px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__links {
+    display: flex;
+    align-items: center;
+    gap: clamp(28px, 2.6vw, 44px);
+  }
+
+  &__link {
+    font-family: $font-body;
+    font-size: 16px;
+    font-weight: 400;
+    color: $ink-soft;
+    text-decoration: none;
+
+    &--active {
+      font-weight: 700;
+      color: $ink;
+    }
+  }
+
+  &__divider {
+    width: 1px;
+    height: 16px;
+    background-color: $line;
+  }
+}

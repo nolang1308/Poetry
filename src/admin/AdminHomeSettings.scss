@@ -1,0 +1,194 @@
+@use '../styles/variables' as *;
+
+.admin-settings {
+  min-height: 100vh;
+  background-color: $bg;
+
+  &__container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px clamp(20px, 4vw, 48px) 80px;
+  }
+
+  &__back {
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-soft;
+    text-decoration: none;
+
+    &:hover {
+      color: $ink;
+    }
+  }
+
+  &__title {
+    margin: 16px 0 8px;
+    font-family: $font-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__section {
+    margin-top: 36px;
+    padding: 24px;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 8px;
+  }
+
+  &__section-title {
+    margin: 0 0 20px;
+    font-family: $font-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    & + & {
+      margin-top: 18px;
+    }
+  }
+
+  &__label {
+    font-family: $font-body;
+    font-size: 13px;
+    font-weight: 500;
+    color: $ink-soft;
+  }
+
+  &__input,
+  &__textarea {
+    font-family: $font-body;
+    font-size: 15px;
+    color: $ink;
+    padding: 12px 14px;
+    background-color: $bg;
+    border: 1px solid $line;
+    border-radius: 4px;
+    outline: none;
+
+    &::placeholder {
+      color: $ink-faint;
+    }
+
+    &:focus {
+      border-color: $accent;
+    }
+  }
+
+  &__textarea {
+    resize: vertical;
+    line-height: 1.7;
+  }
+
+  // 이미지 업로드
+  &__image-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__thumb {
+    width: 88px;
+    height: 110px;
+    flex-shrink: 0;
+    border-radius: 4px;
+    background-color: $accent-soft;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid $line;
+
+    &--round {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+    }
+  }
+
+  &__file {
+    cursor: pointer;
+  }
+
+  &__file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &__file-btn {
+    display: inline-block;
+    padding: 10px 18px;
+    font-family: $font-body;
+    font-size: 14px;
+    font-weight: 500;
+    color: $ink;
+    background-color: $bg;
+    border: 1px solid $line;
+    border-radius: 4px;
+
+    .admin-settings__file:hover & {
+      border-color: $accent;
+      color: $accent;
+    }
+  }
+
+  &__error {
+    margin: 20px 0 0;
+    font-family: $font-body;
+    font-size: 13px;
+    color: #b5443a;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  &__cancel {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-soft;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 4px;
+    text-decoration: none;
+
+    &:hover {
+      color: $ink;
+    }
+  }
+
+  &__submit {
+    padding: 12px 28px;
+    font-family: $font-body;
+    font-size: 14px;
+    font-weight: 700;
+    color: $surface;
+    background-color: $accent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background-color: #354d43;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
