@@ -14,7 +14,7 @@ function WebNav({ active }: WebNavProps) {
   return (
     <nav className="web-nav">
       <Link to="/" className="web-nav__brand">
-        <span className="web-nav__brand-mark">詩</span>
+        {/*<span className="web-nav__brand-mark">詩</span>*/}
         <span className="web-nav__brand-name">권일원의 시</span>
       </Link>
       <div className="web-nav__links">
