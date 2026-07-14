@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import PoemCard from './PoemCard'
 import MobileMenu from './MobileMenu'
@@ -20,10 +20,41 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return rows
 }
 
+// 한 번에 노출하는 시 개수 (스크롤로 계속 불러옴)
+const PAGE_SIZE = 10
+
 function MobilePoems({ poems, loading }: { poems: PoemDoc[]; loading: boolean }) {
   const { query, setQuery, sort, setSort, results } = usePoemFilter(poems)
-  const rows = chunk(results, 2)
   const [menuOpen, setMenuOpen] = useState(false)
+
+  // 무한 스크롤: 처음엔 10편, 하단 센티널이 보일 때마다 10편씩 더 노출
+  const [visible, setVisible] = useState(PAGE_SIZE)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+
+  // 검색어·정렬이 바뀌면 다시 처음 10편부터
+  useEffect(() => {
+    setVisible(PAGE_SIZE)
+  }, [query, sort])
+
+  const shown = results.slice(0, visible)
+  const hasMore = visible < results.length
+  const rows = chunk(shown, 2)
+
+  useEffect(() => {
+    if (loading || !hasMore) return
+    const el = sentinelRef.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisible((v) => Math.min(v + PAGE_SIZE, results.length))
+        }
+      },
+      { rootMargin: '200px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [loading, hasMore, visible, results.length])
 
   // 한글 조합(IME) 중에는 flushSync/전환을 걸지 않아야 글자가 끊기지 않는다
   const composing = useRef(false)
@@ -106,8 +137,8 @@ function MobilePoems({ poems, loading }: { poems: PoemDoc[]; loading: boolean })
           <p className="mobile-poems__empty">등록된 시가 없습니다.</p>
         )}
 
-        {!loading && !query && results.length > 0 && (
-          <div className="mobile-poems__loading">
+        {!loading && hasMore && (
+          <div className="mobile-poems__loading" ref={sentinelRef}>
             <Loader size={16} className="mobile-poems__spinner" />
             <span className="mobile-poems__loading-text">계속 불러오는 중...</span>
           </div>

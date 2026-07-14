@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import WebNav from './WebNav'
 import PoemCard from './PoemCard'
-import { Search, SortIcon, ChevronLeft, ChevronRight } from './icons'
+import { Search, SortIcon, Loader } from './icons'
 import type { PoemDoc } from '../data/poems'
 import { usePoemFilter, type SortKey } from '../hooks/usePoemFilter'
 import { withViewTransition } from '../utils/viewTransition'
@@ -13,7 +13,8 @@ const sortChips: { label: string; key: SortKey }[] = [
   { label: '가나다순', key: 'title' },
 ]
 
-const PAGE_SIZE = 10 // 한 페이지에 표시할 시 수 (책장 2줄)
+// 한 번에 노출하는 시 개수 (스크롤로 계속 불러옴)
+const PAGE_SIZE = 10
 
 // 5개씩 끊어서 책장 행으로 구성
 function chunk<T>(arr: T[], size: number): T[][] {
@@ -22,55 +23,46 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return rows
 }
 
-// 페이지 버튼 목록 (많으면 생략기호로 축약)
-function pageItems(current: number, total: number): (number | '…')[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
-  const items: (number | '…')[] = [1]
-  const start = Math.max(2, current - 1)
-  const end = Math.min(total - 1, current + 1)
-  if (start > 2) items.push('…')
-  for (let i = start; i <= end; i++) items.push(i)
-  if (end < total - 1) items.push('…')
-  items.push(total)
-  return items
-}
-
 function WebPoems({ poems, loading }: { poems: PoemDoc[]; loading: boolean }) {
   const { query, setQuery, sort, setSort, results } = usePoemFilter(poems)
-  const [page, setPage] = useState(1)
 
-  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE))
+  // 무한 스크롤: 처음엔 10편, 하단 센티널이 보일 때마다 10편씩 더 노출
+  const [visible, setVisible] = useState(PAGE_SIZE)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  // 결과가 줄어 현재 페이지가 넘치면 보정
+  // 검색어·정렬이 바뀌면 다시 처음 10편부터
   useEffect(() => {
-    if (page > totalPages) setPage(totalPages)
-  }, [page, totalPages])
+    setVisible(PAGE_SIZE)
+  }, [query, sort])
 
-  // 페이지 이동 시 상단으로
+  const shown = results.slice(0, visible)
+  const hasMore = visible < results.length
+  const rows = chunk(shown, 5)
+
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [page])
+    if (loading || !hasMore) return
+    const el = sentinelRef.current
+    if (!el) return
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisible((v) => Math.min(v + PAGE_SIZE, results.length))
+        }
+      },
+      { rootMargin: '200px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [loading, hasMore, visible, results.length])
 
   // 한글 조합(IME) 중에는 flushSync/전환을 걸지 않아야 글자가 끊기지 않는다
   const composing = useRef(false)
   const applyQuery = (v: string, animate: boolean) => {
-    const run = () => {
-      setQuery(v)
-      setPage(1)
-    }
-    if (animate) withViewTransition(run)
-    else run()
+    if (animate) withViewTransition(() => setQuery(v))
+    else setQuery(v)
   }
 
-  const onSort = (key: SortKey) =>
-    withViewTransition(() => {
-      setSort(key)
-      setPage(1)
-    })
-  const onPage = (p: number) => withViewTransition(() => setPage(p))
-
-  const pageResults = results.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-  const rows = chunk(pageResults, 5)
+  const onSort = (key: SortKey) => withViewTransition(() => setSort(key))
 
   return (
     <div className="web-poems">
@@ -143,47 +135,10 @@ function WebPoems({ poems, loading }: { poems: PoemDoc[]; loading: boolean }) {
           <p className="web-poems__empty">등록된 시가 없습니다.</p>
         )}
 
-        {!loading && totalPages > 1 && (
-          <div className="web-poems__pagination">
-            <button
-              type="button"
-              className="web-poems__page-btn"
-              onClick={() => onPage(Math.max(1, page - 1))}
-              disabled={page === 1}
-              aria-label="이전 페이지"
-            >
-              <ChevronLeft size={18} />
-            </button>
-
-            {pageItems(page, totalPages).map((it, i) =>
-              it === '…' ? (
-                <span key={`e${i}`} className="web-poems__ellipsis">
-                  …
-                </span>
-              ) : (
-                <button
-                  key={it}
-                  type="button"
-                  className={
-                    'web-poems__page-btn' +
-                    (it === page ? ' web-poems__page-btn--active' : '')
-                  }
-                  onClick={() => onPage(it)}
-                >
-                  {it}
-                </button>
-              ),
-            )}
-
-            <button
-              type="button"
-              className="web-poems__page-btn"
-              onClick={() => onPage(Math.min(totalPages, page + 1))}
-              disabled={page === totalPages}
-              aria-label="다음 페이지"
-            >
-              <ChevronRight size={18} />
-            </button>
+        {!loading && hasMore && (
+          <div className="web-poems__loading" ref={sentinelRef}>
+            <Loader size={18} className="web-poems__spinner" />
+            <span className="web-poems__loading-text">계속 불러오는 중...</span>
           </div>
         )}
       </div>
