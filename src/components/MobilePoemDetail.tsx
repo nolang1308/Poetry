@@ -75,9 +75,13 @@ function MobilePoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?
       <div className="mobile-poem__body">
         <div className="mobile-poem__header">
           <h1 className="mobile-poem__title">{poem.title}</h1>
-          <div className="mobile-poem__meta">
-            <span>{poem.date}</span>
-            <span className="mobile-poem__meta-dot">·</span>
+          <div className="mobile-poem__title-side">
+            <span className="mobile-poem__signature">
+              {poemContent.signature}
+            </span>
+            <span className="mobile-poem__side-dot">·</span>
+            <span className="mobile-poem__side-date">{poem.date}</span>
+            <span className="mobile-poem__side-dot">·</span>
             <span className="mobile-poem__likes">
               <Heart size={14} className="mobile-poem__likes-heart" />
               {poem.likes}
@@ -103,8 +107,6 @@ function MobilePoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?
             ))}
           </div>
         )}
-
-        <span className="mobile-poem__signature">{poemContent.signature}</span>
 
         {!rich && poem.image && (
           <img

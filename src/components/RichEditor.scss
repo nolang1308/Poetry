@@ -64,6 +64,28 @@
     background-color: $line;
   }
 
+  &__select {
+    height: 30px;
+    padding: 0 6px;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      border-color: $accent;
+      color: $ink;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $accent;
+    }
+  }
+
   // 편집 영역 (타이포는 .poem-prose 공통 클래스가 담당)
   &__content {
     padding: 16px 18px;

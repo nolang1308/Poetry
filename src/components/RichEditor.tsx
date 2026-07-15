@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { useEditor, useEditorState, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
+import { TextStyle, FontSize } from '@tiptap/extension-text-style'
 import ImageResize from 'tiptap-extension-resize-image'
 import { resizeImage } from '../utils/image'
 import { Bold, Italic, AlignLeft, AlignCenter, AlignRight, Image as ImageIcon } from './icons'
@@ -12,6 +13,15 @@ interface Props {
   onChange: (html: string) => void
 }
 
+// 시 내용 글자 크기 프리셋 (빈 값 = 기본 16px)
+const FONT_SIZES = [
+  { label: '작게', value: '14px' },
+  { label: '보통', value: '' },
+  { label: '조금 크게', value: '18px' },
+  { label: '크게', value: '22px' },
+  { label: '아주 크게', value: '28px' },
+]
+
 // 글 흐름 속에 사진을 삽입하고(드래그로 크기 조절·정렬 가능) 굵게/기울임/문단
 // 정렬을 지원하는 리치 텍스트 에디터. content는 HTML 문자열로 오간다.
 function RichEditor({ value, onChange }: Props) {
@@ -21,6 +31,8 @@ function RichEditor({ value, onChange }: Props) {
     extensions: [
       StarterKit,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TextStyle,
+      FontSize,
       // 삽입된 이미지를 드래그로 리사이즈 + 좌/가운데/우 정렬
       ImageResize.configure({ inline: false }),
     ],
@@ -39,12 +51,18 @@ function RichEditor({ value, onChange }: Props) {
       left: editor?.isActive({ textAlign: 'left' }) ?? false,
       center: editor?.isActive({ textAlign: 'center' }) ?? false,
       right: editor?.isActive({ textAlign: 'right' }) ?? false,
+      fontSize: (editor?.getAttributes('textStyle')?.fontSize as string) ?? '',
     }),
   })
 
   if (!editor) return null
 
   const pickImage = () => fileRef.current?.click()
+
+  const onFontSize = (value: string) => {
+    if (value) editor.chain().focus().setFontSize(value).run()
+    else editor.chain().focus().unsetFontSize().run()
+  }
 
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -77,6 +95,21 @@ function RichEditor({ value, onChange }: Props) {
         >
           <Italic size={16} />
         </button>
+
+        <span className="rich-editor__divider" />
+
+        <select
+          className="rich-editor__select"
+          value={state?.fontSize ?? ''}
+          onChange={(e) => onFontSize(e.target.value)}
+          aria-label="글자 크기"
+        >
+          {FONT_SIZES.map((f) => (
+            <option key={f.label} value={f.value}>
+              {f.label}
+            </option>
+          ))}
+        </select>
 
         <span className="rich-editor__divider" />
 

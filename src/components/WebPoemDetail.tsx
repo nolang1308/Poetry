@@ -83,11 +83,17 @@ function WebPoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: b
 
         <div className="web-poem__reading">
           <article className="web-poem__poem-column">
-            <h1 className="web-poem__title">{poem.title}</h1>
-            <div className="web-poem__meta">
-              <span>{poem.date}</span>
-              <span className="web-poem__meta-dot">·</span>
-              <span>좋아요 {poem.likes}</span>
+            <div className="web-poem__title-row">
+              <h1 className="web-poem__title">{poem.title}</h1>
+              <div className="web-poem__title-side">
+                <span className="web-poem__signature">
+                  {poemContent.signature}
+                </span>
+                <span className="web-poem__side-dot">·</span>
+                <span className="web-poem__side-meta">{poem.date}</span>
+                <span className="web-poem__side-dot">·</span>
+                <span className="web-poem__side-meta">좋아요 {poem.likes}</span>
+              </div>
             </div>
             <span className="web-poem__rule" />
             {rich ? (
@@ -109,7 +115,6 @@ function WebPoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: b
                 ))}
               </div>
             )}
-            <span className="web-poem__signature">{poemContent.signature}</span>
             {!rich && poem.image && (
               <img
                 className="web-poem__photo"
