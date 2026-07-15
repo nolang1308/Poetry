@@ -72,29 +72,10 @@ $pad-x: clamp(48px, 5vw, 88px);
     }
   }
 
-  // Reading (2단)
+  // Reading (사진을 뺀 단일 컬럼)
   &__reading {
     display: flex;
-    gap: clamp(48px, 6vw, 88px);
     padding-top: 48px;
-  }
-
-  &__photo-column {
-    display: flex;
-    flex-direction: column;
-    width: clamp(400px, 40vw, 540px);
-    flex-shrink: 0;
-  }
-
-  &__photo {
-    width: 100%;
-    aspect-ratio: 540 / 660;
-    border-radius: 4px;
-    background-color: $accent-soft;
-    background-size: cover;
-    background-position: center;
-    box-shadow: 0 18px 44px -10px rgba(43, 40, 35, 0.2);
-    view-transition-name: poem-cover; // 목록 표지가 이 사진으로 morph
   }
 
   &__poem-column {
@@ -102,7 +83,18 @@ $pad-x: clamp(48px, 5vw, 88px);
     flex-direction: column;
     flex: 1;
     min-width: 0;
-    view-transition-name: poem-page; // 오른쪽 페이지가 책처럼 펼쳐짐
+    view-transition-name: poem-page; // 페이지가 책처럼 펼쳐짐
+  }
+
+  // 시 본문 아래 한켠에 작게, 원본 비율 그대로
+  &__photo {
+    align-self: flex-start;
+    width: clamp(180px, 22vw, 260px);
+    height: auto;
+    margin-top: 48px;
+    border-radius: 4px;
+    background-color: $accent-soft;
+    box-shadow: 0 12px 30px -10px rgba(43, 40, 35, 0.22);
   }
 
   &__title {
@@ -138,6 +130,7 @@ $pad-x: clamp(48px, 5vw, 88px);
   &__body {
     margin-top: 32px;
   }
+  // 리치 본문 타이포는 .poem-prose 공통 클래스가 담당
 
   &__stanza {
     margin: 0;

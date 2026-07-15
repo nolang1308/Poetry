@@ -1,5 +1,6 @@
 import { Link, useViewTransitionState } from 'react-router-dom'
 import { Heart } from './icons'
+import { useFitText } from '../hooks/useFitText'
 import type { PoemDoc } from '../data/poems'
 import './PoemCard.scss'
 
@@ -9,6 +10,8 @@ function PoemCard({ id, title, likes, date, image }: PoemDoc) {
   // 그 외에는 카드별 고유 이름으로 재정렬 시 부드럽게 이동(FLIP).
   const isTransitioning = useViewTransitionState(to)
   const vtName = isTransitioning ? 'poem-cover' : `poem-card-${id}`
+  // 제목이 길어 두 줄이 되면 한 줄에 맞게 폰트를 줄인다.
+  const { ref: titleRef, size: titleSize } = useFitText<HTMLParagraphElement>(title)
 
   return (
     <Link to={to} viewTransition className="poem-card">
@@ -22,7 +25,16 @@ function PoemCard({ id, title, likes, date, image }: PoemDoc) {
         aria-label={title}
       />
       <div className="poem-card__info">
-        <p className="poem-card__title">{title}</p>
+        <div className="poem-card__title-box">
+          <p
+            className="poem-card__title"
+            ref={titleRef}
+            style={{ fontSize: `${titleSize}px` }}
+          >
+            {title}
+          </p>
+        </div>
+        <p className="poem-card__poet">권일원</p>
         <div className="poem-card__meta">
           <span className="poem-card__likes">
             <Heart size={13} className="poem-card__heart" />

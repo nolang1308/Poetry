@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, Heart, Share, PenLine } from './icons'
-import { poemContent, parseStanzas, type PoemContext } from '../data/poems'
+import { poemContent, parseStanzas, isRichHtml, type PoemContext } from '../data/poems'
 import { likePoem } from '../data/poemsRepo'
 import { isLiked, setLikedLocal } from '../utils/likes'
 import { copyText } from '../utils/clipboard'
@@ -9,14 +9,16 @@ import { useToast } from '../hooks/useToast'
 import Toast from './Toast'
 import './MobilePoemDetail.scss'
 
-function MobilePoemDetail({ ctx }: { ctx: PoemContext }) {
+function MobilePoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: boolean }) {
   const { poem, prev, next } = ctx
+  const rich = isRichHtml(poem.content)
   const stanzas = parseStanzas(poem.content) ?? poemContent.stanzas
 
   const note = poem.note?.trim() ? poem.note : poemContent.note
   const toast = useToast()
 
   const onShare = async () => {
+    if (preview) return // 미리보기에서는 동작하지 않음
     const ok = await copyText(window.location.href)
     toast.show(ok ? '링크가 복사되었습니다' : '복사에 실패했습니다')
   }
@@ -25,6 +27,7 @@ function MobilePoemDetail({ ctx }: { ctx: PoemContext }) {
   useEffect(() => setLiked(isLiked(poem.id)), [poem.id])
 
   const onLike = () => {
+    if (preview) return // 미리보기에서는 동작하지 않음
     const next = !liked
     setLiked(next)
     setLikedLocal(poem.id, next)
@@ -37,10 +40,14 @@ function MobilePoemDetail({ ctx }: { ctx: PoemContext }) {
   return (
     <div className="mobile-poem">
       <header className="mobile-poem__top-bar">
-        <Link to="/poems" className="mobile-poem__back">
-          <ChevronLeft size={20} />
-          <span>시 목록</span>
-        </Link>
+        {preview ? (
+          <span />
+        ) : (
+          <Link to="/poems" className="mobile-poem__back">
+            <ChevronLeft size={20} />
+            <span>시 목록</span>
+          </Link>
+        )}
         <div className="mobile-poem__actions">
           <button
             type="button"
@@ -65,13 +72,6 @@ function MobilePoemDetail({ ctx }: { ctx: PoemContext }) {
         </div>
       </header>
 
-      <div
-        className="mobile-poem__cover"
-        style={{ backgroundImage: `url(${poem.image})` }}
-        role="img"
-        aria-label={poem.title}
-      />
-
       <div className="mobile-poem__body">
         <div className="mobile-poem__header">
           <h1 className="mobile-poem__title">{poem.title}</h1>
@@ -85,19 +85,34 @@ function MobilePoemDetail({ ctx }: { ctx: PoemContext }) {
           </div>
         </div>
 
-        <div className="mobile-poem__poem">
-          {stanzas.map((stanza, si) => (
-            <div key={si} className="mobile-poem__stanza">
-              {stanza.map((line, li) => (
-                <p key={li} className="mobile-poem__line">
-                  {line}
-                </p>
-              ))}
-            </div>
-          ))}
-        </div>
+        {rich ? (
+          <div
+            className="poem-prose"
+            dangerouslySetInnerHTML={{ __html: poem.content! }}
+          />
+        ) : (
+          <div className="mobile-poem__poem">
+            {stanzas.map((stanza, si) => (
+              <div key={si} className="mobile-poem__stanza">
+                {stanza.map((line, li) => (
+                  <p key={li} className="mobile-poem__line">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
 
         <span className="mobile-poem__signature">{poemContent.signature}</span>
+
+        {!rich && poem.image && (
+          <img
+            className="mobile-poem__photo"
+            src={poem.image}
+            alt={poem.title}
+          />
+        )}
 
         <div className="mobile-poem__note">
           <div className="mobile-poem__note-heading">
@@ -114,26 +129,30 @@ function MobilePoemDetail({ ctx }: { ctx: PoemContext }) {
           <p className="mobile-poem__note-body">{note}</p>
         </div>
 
-        <div className="mobile-poem__nav-divider" />
+        {!preview && (
+          <>
+            <div className="mobile-poem__nav-divider" />
 
-        <nav className="mobile-poem__poem-nav">
-          <Link
-            to={`/poems/${encodeURIComponent(prev.title)}`}
-            viewTransition
-            className="mobile-poem__nav-card mobile-poem__nav-card--prev"
-          >
-            <span className="mobile-poem__nav-dir">← 이전 시 읽기</span>
-            <span className="mobile-poem__nav-title">{prev.title}</span>
-          </Link>
-          <Link
-            to={`/poems/${encodeURIComponent(next.title)}`}
-            viewTransition
-            className="mobile-poem__nav-card mobile-poem__nav-card--next"
-          >
-            <span className="mobile-poem__nav-dir">다음 시 읽기 →</span>
-            <span className="mobile-poem__nav-title">{next.title}</span>
-          </Link>
-        </nav>
+            <nav className="mobile-poem__poem-nav">
+              <Link
+                to={`/poems/${encodeURIComponent(prev.title)}`}
+                viewTransition
+                className="mobile-poem__nav-card mobile-poem__nav-card--prev"
+              >
+                <span className="mobile-poem__nav-dir">← 이전 시 읽기</span>
+                <span className="mobile-poem__nav-title">{prev.title}</span>
+              </Link>
+              <Link
+                to={`/poems/${encodeURIComponent(next.title)}`}
+                viewTransition
+                className="mobile-poem__nav-card mobile-poem__nav-card--next"
+              >
+                <span className="mobile-poem__nav-dir">다음 시 읽기 →</span>
+                <span className="mobile-poem__nav-title">{next.title}</span>
+              </Link>
+            </nav>
+          </>
+        )}
       </div>
 
       <Toast message={toast.message} visible={toast.visible} />

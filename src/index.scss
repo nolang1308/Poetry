@@ -32,6 +32,31 @@ body {
   color: $ink-faint;
 }
 
+// 리치 본문 공통 타이포그래피.
+// 에디터(작성 화면)와 상세/미리보기가 이 하나의 클래스를 공유해
+// 글자 크기·줄 간격·문단 여백이 픽셀 단위로 완전히 동일하도록 한다.
+.poem-prose {
+  font-family: $font-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: $ink;
+
+  p {
+    margin: 0 0 0.15em;
+  }
+
+  // 빈 문단(엔터 두 번)은 연(聯) 사이 여백으로 유지
+  p:empty {
+    min-height: 0.7em;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+}
+
 // ── View Transitions ──────────────────────────────────
 @media (prefers-reduced-motion: no-preference) {
   // 재정렬 시 표지들이 각자 새 위치로 부드럽게 이동 (지원 브라우저)

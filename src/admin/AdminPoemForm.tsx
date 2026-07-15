@@ -3,6 +3,9 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { usePoems } from '../hooks/usePoems'
 import { addPoem, updatePoem } from '../data/poemsRepo'
 import { resizeImage } from '../utils/image'
+import AutoTextarea from '../components/AutoTextarea'
+import RichEditor from '../components/RichEditor'
+import PoemPreview from '../components/PoemPreview'
 import type { Poem } from '../data/poems'
 import './AdminPoemForm.scss'
 
@@ -49,6 +52,7 @@ function PoemForm({ id, initial }: { id?: string; initial: Poem }) {
   const [fileName, setFileName] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [preview, setPreview] = useState(false)
 
   const set = (key: keyof Poem, value: string) =>
     setForm((f) => ({ ...f, [key]: value }))
@@ -96,8 +100,7 @@ function PoemForm({ id, initial }: { id?: string; initial: Poem }) {
         <h1 className="admin-form__title">{editing ? '시 수정' : '시 등록'}</h1>
 
         <form className="admin-form__body" onSubmit={onSubmit}>
-          <div className="admin-form__grid">
-            <div className="admin-form__fields">
+          <div className="admin-form__fields">
               <label className="admin-form__field">
                 <span className="admin-form__label">제목</span>
                 <input
@@ -108,30 +111,26 @@ function PoemForm({ id, initial }: { id?: string; initial: Poem }) {
                 />
               </label>
 
-              <label className="admin-form__field">
+              <div className="admin-form__field">
                 <span className="admin-form__label">내용</span>
-                <textarea
-                  className="admin-form__textarea"
+                <RichEditor
                   value={form.content ?? ''}
-                  onChange={(e) => set('content', e.target.value)}
-                  placeholder="시 내용을 입력하세요"
-                  rows={9}
+                  onChange={(html) => set('content', html)}
                 />
-              </label>
+              </div>
 
               <label className="admin-form__field">
                 <span className="admin-form__label">시인의 노트</span>
-                <textarea
+                <AutoTextarea
                   className="admin-form__textarea admin-form__textarea--short"
                   value={form.note ?? ''}
                   onChange={(e) => set('note', e.target.value)}
                   placeholder="시에 대한 시인의 한마디 (선택)"
-                  rows={5}
                 />
               </label>
 
               <div className="admin-form__field">
-                <span className="admin-form__label">사진</span>
+                <span className="admin-form__label">표지 사진</span>
                 <label className="admin-form__file">
                   <input
                     type="file"
@@ -155,21 +154,6 @@ function PoemForm({ id, initial }: { id?: string; initial: Poem }) {
                   placeholder="2026.07.13"
                 />
               </label>
-            </div>
-
-            <div className="admin-form__preview">
-              <span className="admin-form__label">미리보기</span>
-              <div
-                className="admin-form__cover"
-                style={
-                  form.image ? { backgroundImage: `url(${form.image})` } : undefined
-                }
-              />
-              <p className="admin-form__preview-title">
-                {form.title || '제목 없음'}
-              </p>
-              <p className="admin-form__preview-meta">{form.date}</p>
-            </div>
           </div>
 
           {error && <p className="admin-form__error">{error}</p>}
@@ -178,6 +162,13 @@ function PoemForm({ id, initial }: { id?: string; initial: Poem }) {
             <Link to="/admin/home" className="admin-form__cancel">
               취소
             </Link>
+            <button
+              type="button"
+              className="admin-form__preview-btn"
+              onClick={() => setPreview(true)}
+            >
+              미리보기
+            </button>
             <button
               type="submit"
               className="admin-form__submit"
@@ -188,6 +179,10 @@ function PoemForm({ id, initial }: { id?: string; initial: Poem }) {
           </div>
         </form>
       </div>
+
+      {preview && (
+        <PoemPreview poem={form} onClose={() => setPreview(false)} />
+      )}
     </div>
   )
 }

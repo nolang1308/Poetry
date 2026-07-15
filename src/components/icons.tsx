@@ -161,3 +161,62 @@ export function X({ size = 16, className }: IconProps) {
     </>
   ))
 }
+
+export function Bold({ size = 16, className }: IconProps) {
+  return base(size, className, (
+    <>
+      <path d="M6 12h8a4 4 0 0 0 0-8H6v8Z" />
+      <path d="M6 12h9a4 4 0 0 1 0 8H6v-8Z" />
+    </>
+  ))
+}
+
+export function Italic({ size = 16, className }: IconProps) {
+  return base(size, className, (
+    <>
+      <path d="M19 4h-9" />
+      <path d="M14 20H5" />
+      <path d="M15 4 9 20" />
+    </>
+  ))
+}
+
+export function AlignLeft({ size = 16, className }: IconProps) {
+  return base(size, className, (
+    <>
+      <path d="M15 12H3" />
+      <path d="M17 6H3" />
+      <path d="M21 18H3" />
+    </>
+  ))
+}
+
+export function AlignCenter({ size = 16, className }: IconProps) {
+  return base(size, className, (
+    <>
+      <path d="M17 12H7" />
+      <path d="M19 6H5" />
+      <path d="M21 18H3" />
+    </>
+  ))
+}
+
+export function AlignRight({ size = 16, className }: IconProps) {
+  return base(size, className, (
+    <>
+      <path d="M21 12H9" />
+      <path d="M21 6H7" />
+      <path d="M21 18H3" />
+    </>
+  ))
+}
+
+export function Image({ size = 16, className }: IconProps) {
+  return base(size, className, (
+    <>
+      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+    </>
+  ))
+}

@@ -72,6 +72,13 @@ export function getPoemContext(poems: PoemDoc[], title: string): PoemContext | n
   }
 }
 
+// 리치 에디터로 저장한 본문인지(HTML) 판별.
+// TipTap 저장물은 항상 블록 태그(<p> 등)로 시작하고, 기존 순수 텍스트 시는
+// 한글 등 일반 문자로 시작하므로 첫 글자로 구분한다.
+export function isRichHtml(content?: string): boolean {
+  return !!content && content.trim().startsWith('<')
+}
+
 // 본문 문자열을 연(빈 줄) / 행(줄바꿈)으로 분해
 export function parseStanzas(content?: string): string[][] | null {
   if (!content || !content.trim()) return null

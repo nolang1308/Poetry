@@ -28,6 +28,14 @@
     gap: 7px;
   }
 
+  // 제목 폰트 크기(길이에 따라 가변)와 무관하게 높이를 고정해
+  // 카드마다 아래 요소·전체 높이가 일정하게 유지되도록 한다. (1줄분)
+  &__title-box {
+    display: flex;
+    align-items: center;
+    height: calc(19px * 1.4);
+  }
+
   &__title {
     margin: 0;
     font-family: $font-serif;
@@ -36,6 +44,15 @@
     line-height: 1.4;
     color: $ink;
     transition: color 0.2s ease;
+  }
+
+  &__poet {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: $ink-soft;
   }
 
   // 마우스 사용 환경에서만 호버 효과 적용

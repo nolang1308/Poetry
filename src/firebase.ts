@@ -12,10 +12,16 @@ const firebaseConfig = {
 }
 
 // 관리자 로그인 아이디로 쓰는 전화번호를 내부 이메일로 매핑
-export const ADMIN_EMAIL = '01092375405@poetry-admin.web'
 export function phoneToEmail(phone: string) {
   return `${phone.replace(/\D/g, '')}@poetry-admin.web`
 }
+
+// 관리자 계정 목록 (전화번호 기반 내부 이메일).
+// 여기에 추가하고 firestore.rules의 isAdmin() 목록도 같이 갱신해야 실제 권한이 생긴다.
+export const ADMIN_EMAILS = [
+  '01092375405@poetry-admin.web',
+  '01035959152@poetry-admin.web',
+]
 
 export const app = initializeApp(firebaseConfig)
 export const db = getFirestore(app)

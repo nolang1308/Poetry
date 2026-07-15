@@ -1,11 +1,18 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // 관리자 계정 목록 (전화번호 기반 이메일)
+    function isAdminEmail(email) {
+      return email in [
+        '01092375405@poetry-admin.web',
+        '01035959152@poetry-admin.web'
+      ];
+    }
+
     match /poems/{poemId} {
-      // 관리자 계정만 (전화번호 기반 이메일)
+      // 관리자 계정만
       function isAdmin() {
-        return request.auth != null
-          && request.auth.token.email == '01092375405@poetry-admin.web';
+        return request.auth != null && isAdminEmail(request.auth.token.email);
       }
 
       // 좋아요: likes 필드만 ±1 변경 허용 (누구나)
@@ -28,7 +35,7 @@ service cloud.firestore {
     match /settings/{docId} {
       allow read: if true;
       allow write: if request.auth != null
-        && request.auth.token.email == '01092375405@poetry-admin.web';
+        && isAdminEmail(request.auth.token.email);
     }
   }
 }

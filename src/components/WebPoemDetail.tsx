@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import WebNav from './WebNav'
 import ArrowRight from './ArrowRight'
 import { ArrowLeft, Heart, Bookmark, Share, PenLine } from './icons'
-import { poemContent, parseStanzas, type PoemContext } from '../data/poems'
+import { poemContent, parseStanzas, isRichHtml, type PoemContext } from '../data/poems'
 import { likePoem } from '../data/poemsRepo'
 import { isLiked, setLikedLocal } from '../utils/likes'
 import { copyText } from '../utils/clipboard'
@@ -11,14 +11,16 @@ import { useToast } from '../hooks/useToast'
 import Toast from './Toast'
 import './WebPoemDetail.scss'
 
-function WebPoemDetail({ ctx }: { ctx: PoemContext }) {
+function WebPoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: boolean }) {
   const { poem, prev, next } = ctx
+  const rich = isRichHtml(poem.content)
   const stanzas = parseStanzas(poem.content) ?? poemContent.stanzas
 
   const note = poem.note?.trim() ? poem.note : poemContent.note
   const toast = useToast()
 
   const onShare = async () => {
+    if (preview) return // 미리보기에서는 동작하지 않음
     const ok = await copyText(window.location.href)
     toast.show(ok ? '링크가 복사되었습니다' : '복사에 실패했습니다')
   }
@@ -27,6 +29,7 @@ function WebPoemDetail({ ctx }: { ctx: PoemContext }) {
   useEffect(() => setLiked(isLiked(poem.id)), [poem.id])
 
   const onLike = () => {
+    if (preview) return // 미리보기에서는 동작하지 않음
     const next = !liked
     setLiked(next)
     setLikedLocal(poem.id, next)
@@ -42,10 +45,14 @@ function WebPoemDetail({ ctx }: { ctx: PoemContext }) {
 
       <div className="web-poem__container">
         <div className="web-poem__action-bar">
-          <Link to="/poems" className="web-poem__back">
-            <ArrowLeft size={17} />
-            <span>시 목록으로</span>
-          </Link>
+          {preview ? (
+            <span />
+          ) : (
+            <Link to="/poems" className="web-poem__back">
+              <ArrowLeft size={17} />
+              <span>시 목록으로</span>
+            </Link>
+          )}
           <div className="web-poem__actions">
             <button
               type="button"
@@ -75,15 +82,6 @@ function WebPoemDetail({ ctx }: { ctx: PoemContext }) {
         </div>
 
         <div className="web-poem__reading">
-          <div className="web-poem__photo-column">
-            <div
-              className="web-poem__photo"
-              style={{ backgroundImage: `url(${poem.image})` }}
-              role="img"
-              aria-label={poem.title}
-            />
-          </div>
-
           <article className="web-poem__poem-column">
             <h1 className="web-poem__title">{poem.title}</h1>
             <div className="web-poem__meta">
@@ -92,19 +90,33 @@ function WebPoemDetail({ ctx }: { ctx: PoemContext }) {
               <span>좋아요 {poem.likes}</span>
             </div>
             <span className="web-poem__rule" />
-            <div className="web-poem__body">
-              {stanzas.map((stanza, si) => (
-                <p key={si} className="web-poem__stanza">
-                  {stanza.map((line, li) => (
-                    <span key={li}>
-                      {line}
-                      {li < stanza.length - 1 && <br />}
-                    </span>
-                  ))}
-                </p>
-              ))}
-            </div>
+            {rich ? (
+              <div
+                className="web-poem__body poem-prose"
+                dangerouslySetInnerHTML={{ __html: poem.content! }}
+              />
+            ) : (
+              <div className="web-poem__body">
+                {stanzas.map((stanza, si) => (
+                  <p key={si} className="web-poem__stanza">
+                    {stanza.map((line, li) => (
+                      <span key={li}>
+                        {line}
+                        {li < stanza.length - 1 && <br />}
+                      </span>
+                    ))}
+                  </p>
+                ))}
+              </div>
+            )}
             <span className="web-poem__signature">{poemContent.signature}</span>
+            {!rich && poem.image && (
+              <img
+                className="web-poem__photo"
+                src={poem.image}
+                alt={poem.title}
+              />
+            )}
           </article>
         </div>
 
@@ -130,30 +142,32 @@ function WebPoemDetail({ ctx }: { ctx: PoemContext }) {
           </div>
         </section>
 
-        <nav className="web-poem__poem-nav">
-          <Link
-            to={`/poems/${encodeURIComponent(prev.title)}`}
-            viewTransition
-            className="web-poem__nav-card web-poem__nav-card--prev"
-          >
-            <ArrowLeft size={22} className="web-poem__nav-icon" />
-            <span className="web-poem__nav-text">
-              <span className="web-poem__nav-label">이전 시 읽기</span>
-              <span className="web-poem__nav-title">{prev.title}</span>
-            </span>
-          </Link>
-          <Link
-            to={`/poems/${encodeURIComponent(next.title)}`}
-            viewTransition
-            className="web-poem__nav-card web-poem__nav-card--next"
-          >
-            <span className="web-poem__nav-text web-poem__nav-text--right">
-              <span className="web-poem__nav-label">다음 시 읽기</span>
-              <span className="web-poem__nav-title">{next.title}</span>
-            </span>
-            <ArrowRight size={22} className="web-poem__nav-icon" />
-          </Link>
-        </nav>
+        {!preview && (
+          <nav className="web-poem__poem-nav">
+            <Link
+              to={`/poems/${encodeURIComponent(prev.title)}`}
+              viewTransition
+              className="web-poem__nav-card web-poem__nav-card--prev"
+            >
+              <ArrowLeft size={22} className="web-poem__nav-icon" />
+              <span className="web-poem__nav-text">
+                <span className="web-poem__nav-label">이전 시 읽기</span>
+                <span className="web-poem__nav-title">{prev.title}</span>
+              </span>
+            </Link>
+            <Link
+              to={`/poems/${encodeURIComponent(next.title)}`}
+              viewTransition
+              className="web-poem__nav-card web-poem__nav-card--next"
+            >
+              <span className="web-poem__nav-text web-poem__nav-text--right">
+                <span className="web-poem__nav-label">다음 시 읽기</span>
+                <span className="web-poem__nav-title">{next.title}</span>
+              </span>
+              <ArrowRight size={22} className="web-poem__nav-icon" />
+            </Link>
+          </nav>
+        )}
       </div>
 
       <Toast message={toast.message} visible={toast.visible} />
