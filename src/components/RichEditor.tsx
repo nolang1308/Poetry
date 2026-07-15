@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { useEditor, useEditorState, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
-import { TextStyle, FontSize } from '@tiptap/extension-text-style'
+import { TextStyle, FontSize, FontFamily } from '@tiptap/extension-text-style'
 import ImageResize from 'tiptap-extension-resize-image'
 import { resizeImage } from '../utils/image'
 import { Bold, Italic, AlignLeft, AlignCenter, AlignRight, Image as ImageIcon } from './icons'
@@ -12,6 +12,16 @@ interface Props {
   value: string
   onChange: (html: string) => void
 }
+
+// 시 내용 폰트 프리셋 (빈 값 = 사이트 기본인 꾹꾹체) — 로드된 폰트와 맞춘다
+const FONT_FAMILIES = [
+  { label: '기본 (꾹꾹체)', value: '' },
+  { label: '명조', value: "'Nanum Myeongjo', serif" },
+  { label: '고딕', value: "'Noto Sans KR', sans-serif" },
+  { label: '고운 바탕', value: "'Gowun Batang', serif" },
+  { label: '고운 돋움', value: "'Gowun Dodum', sans-serif" },
+  { label: '손글씨', value: "'Nanum Pen Script', cursive" },
+]
 
 // 시 내용 글자 크기 프리셋 (빈 값 = 기본 16px)
 const FONT_SIZES = [
@@ -33,6 +43,7 @@ function RichEditor({ value, onChange }: Props) {
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       TextStyle,
       FontSize,
+      FontFamily,
       // 삽입된 이미지를 드래그로 리사이즈 + 좌/가운데/우 정렬
       ImageResize.configure({ inline: false }),
     ],
@@ -52,6 +63,8 @@ function RichEditor({ value, onChange }: Props) {
       center: editor?.isActive({ textAlign: 'center' }) ?? false,
       right: editor?.isActive({ textAlign: 'right' }) ?? false,
       fontSize: (editor?.getAttributes('textStyle')?.fontSize as string) ?? '',
+      fontFamily:
+        (editor?.getAttributes('textStyle')?.fontFamily as string) ?? '',
     }),
   })
 
@@ -62,6 +75,11 @@ function RichEditor({ value, onChange }: Props) {
   const onFontSize = (value: string) => {
     if (value) editor.chain().focus().setFontSize(value).run()
     else editor.chain().focus().unsetFontSize().run()
+  }
+
+  const onFontFamily = (value: string) => {
+    if (value) editor.chain().focus().setFontFamily(value).run()
+    else editor.chain().focus().unsetFontFamily().run()
   }
 
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +115,23 @@ function RichEditor({ value, onChange }: Props) {
         </button>
 
         <span className="rich-editor__divider" />
+
+        <select
+          className="rich-editor__select"
+          value={state?.fontFamily ?? ''}
+          onChange={(e) => onFontFamily(e.target.value)}
+          aria-label="폰트"
+        >
+          {FONT_FAMILIES.map((f) => (
+            <option
+              key={f.label}
+              value={f.value}
+              style={f.value ? { fontFamily: f.value } : undefined}
+            >
+              {f.label}
+            </option>
+          ))}
+        </select>
 
         <select
           className="rich-editor__select"

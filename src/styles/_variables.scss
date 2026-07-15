@@ -8,8 +8,9 @@ $ink-soft: #5c564c;
 $line: #e3dccc;
 $surface: #fcfaf4;
 
-$font-body: 'Noto Sans KR', sans-serif;
-$font-serif: 'Nanum Myeongjo', serif;
+// 사이트 전체 서체: 메모먼트꾹꾹체 (로드 전에는 기존 서체로 표시)
+$font-body: 'Memoment Kkukkukk', 'Noto Sans KR', sans-serif;
+$font-serif: 'Memoment Kkukkukk', 'Nanum Myeongjo', serif;
 
 // Web 콘텐츠 최대 폭 (넓은 디스플레이에서 좌우로 벌어지지 않도록 제한)
 $max-content: 1560px;
