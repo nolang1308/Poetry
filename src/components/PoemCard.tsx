@@ -15,14 +15,11 @@ function PoemCard({ id, title, likes, date, image }: PoemDoc) {
 
   return (
     <Link to={to} viewTransition className="poem-card">
-      <div
+      <img
         className="poem-card__cover"
-        style={{
-          backgroundImage: `url(${image})`,
-          viewTransitionName: vtName,
-        }}
-        role="img"
-        aria-label={title}
+        src={image}
+        alt={title}
+        style={{ viewTransitionName: vtName }}
       />
       <div className="poem-card__info">
         <div className="poem-card__title-box">

@@ -39,6 +39,31 @@
     text-align: center;
   }
 
+  &__ratios {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__ratio {
+    padding: 7px 14px;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 16px;
+    cursor: pointer;
+
+    &--active {
+      font-weight: 700;
+      color: $surface;
+      background-color: $accent;
+      border-color: $accent;
+    }
+  }
+
   &__zoom {
     display: flex;
     align-items: center;

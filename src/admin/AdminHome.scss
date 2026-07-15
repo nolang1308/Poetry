@@ -273,21 +273,27 @@
   flex-direction: column;
   gap: 12px;
 
+  // 크롭 없이 사진의 원본 비율 그대로 노출 (시 목록과 동일)
   &__cover {
     position: relative;
     width: 100%;
-    aspect-ratio: 3 / 4;
+    min-height: 80px; // 사진이 없어도 선택 영역 확보
     padding: 0;
     border: none;
     border-radius: 3px;
     background-color: $accent-soft;
-    background-size: cover;
-    background-position: center;
     box-shadow: 0 10px 22px -8px rgba(43, 40, 35, 0.22);
     cursor: pointer;
     outline: 2px solid transparent;
     outline-offset: 3px;
     transition: outline-color 0.15s ease;
+  }
+
+  &__cover-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 3px;
   }
 
   &--selected &__cover {

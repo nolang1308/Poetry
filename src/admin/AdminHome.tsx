@@ -186,11 +186,17 @@ function AdminHome() {
                   <button
                     type="button"
                     className="admin-card__cover"
-                    style={{ backgroundImage: `url(${poem.image})` }}
                     onClick={() => toggle(poem.id)}
                     aria-pressed={on}
                     aria-label={`${poem.title} 선택`}
                   >
+                    {poem.image && (
+                      <img
+                        className="admin-card__cover-img"
+                        src={poem.image}
+                        alt=""
+                      />
+                    )}
                     <span
                       className={
                         'admin-card__check' +

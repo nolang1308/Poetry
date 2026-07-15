@@ -8,13 +8,13 @@
   width: 100%;
   text-decoration: none;
 
+  // 크롭 없이 사진의 원본 비율 그대로 노출
   &__cover {
+    display: block;
     width: 100%;
-    aspect-ratio: 3 / 4; // Web 기본 비율 (240×320)
+    height: auto;
     border-radius: 3px;
     background-color: $accent-soft;
-    background-size: cover;
-    background-position: center;
     box-shadow: 0 10px 24px -6px rgba(43, 40, 35, 0.2);
     transition:
       transform 0.35s ease,

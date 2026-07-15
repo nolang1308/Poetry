@@ -1,26 +1,55 @@
 import { useCallback, useEffect, useState } from 'react'
-import Cropper, { type Area } from 'react-easy-crop'
+import Cropper, { type Area, type MediaSize } from 'react-easy-crop'
 import { getCroppedImg } from '../utils/image'
 import './ImageCropper.scss'
 
 interface Props {
   src: string // 편집할 원본 이미지 (data URL)
-  aspect?: number // 크롭 비율 (기본 3:4 표지)
   onCancel: () => void
   onConfirm: (dataUrl: string) => void
 }
 
+// 카톡 프로필처럼 선택 가능한 크롭 비율. '원본'은 사진 고유 비율을 그대로 쓴다.
+const ratioOptions = [
+  { key: 'original', label: '원본', value: null },
+  { key: '1:1', label: '1:1', value: 1 },
+  { key: '3:4', label: '3:4', value: 3 / 4 },
+  { key: '4:3', label: '4:3', value: 4 / 3 },
+  { key: '9:16', label: '9:16', value: 9 / 16 },
+  { key: '16:9', label: '16:9', value: 16 / 9 },
+] as const
+
+type RatioKey = (typeof ratioOptions)[number]['key']
+
 // 인스타/카톡 프로필처럼 고정 프레임 안에서 사진을 드래그·확대해 위치를 맞추고
 // 그 영역대로 크롭하는 모달.
-function ImageCropper({ src, aspect = 3 / 4, onCancel, onConfirm }: Props) {
+function ImageCropper({ src, onCancel, onConfirm }: Props) {
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
+  const [ratio, setRatio] = useState<RatioKey>('original')
+  const [naturalAspect, setNaturalAspect] = useState<number | null>(null)
   const [areaPixels, setAreaPixels] = useState<Area | null>(null)
   const [saving, setSaving] = useState(false)
+
+  const selected = ratioOptions.find((r) => r.key === ratio)!
+  const aspect = selected.value ?? naturalAspect ?? 3 / 4
+
+  const onMediaLoaded = useCallback((mediaSize: MediaSize) => {
+    if (mediaSize.naturalHeight > 0) {
+      setNaturalAspect(mediaSize.naturalWidth / mediaSize.naturalHeight)
+    }
+  }, [])
 
   const onCropComplete = useCallback((_: Area, pixels: Area) => {
     setAreaPixels(pixels)
   }, [])
+
+  // 비율을 바꾸면 위치·확대를 초기화해 새 프레임에 맞춘다
+  const onRatio = (key: RatioKey) => {
+    setRatio(key)
+    setCrop({ x: 0, y: 0 })
+    setZoom(1)
+  }
 
   // ESC로 취소
   useEffect(() => {
@@ -53,6 +82,7 @@ function ImageCropper({ src, aspect = 3 / 4, onCancel, onConfirm }: Props) {
           minZoom={1}
           maxZoom={4}
           restrictPosition
+          onMediaLoaded={onMediaLoaded}
           onCropChange={setCrop}
           onZoomChange={setZoom}
           onCropComplete={onCropComplete}
@@ -63,6 +93,21 @@ function ImageCropper({ src, aspect = 3 / 4, onCancel, onConfirm }: Props) {
         <p className="image-cropper__hint">
           사진을 드래그해 위치를 맞추고, 슬라이더로 확대·축소하세요.
         </p>
+        <div className="image-cropper__ratios" role="group" aria-label="크롭 비율">
+          {ratioOptions.map((option) => (
+            <button
+              key={option.key}
+              type="button"
+              className={
+                'image-cropper__ratio' +
+                (ratio === option.key ? ' image-cropper__ratio--active' : '')
+              }
+              onClick={() => onRatio(option.key)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
         <div className="image-cropper__zoom">
           <span className="image-cropper__zoom-label">축소</span>
           <input

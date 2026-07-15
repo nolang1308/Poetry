@@ -155,11 +155,10 @@ function PoemForm({ id, initial }: { id?: string; initial: Poem }) {
                   </label>
                   {form.image && (
                     <div className="admin-form__cover-preview">
-                      <div
+                      <img
                         className="admin-form__cover-thumb"
-                        style={{ backgroundImage: `url(${form.image})` }}
-                        role="img"
-                        aria-label="표지 미리보기"
+                        src={form.image}
+                        alt="표지 미리보기"
                       />
                       <button
                         type="button"

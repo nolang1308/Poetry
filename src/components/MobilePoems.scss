@@ -81,17 +81,65 @@
     }
   }
 
+  // 필터 칩 + 보기 토글을 한 줄에 배치.
+  // 칩은 줄어들지 않고, 공간이 모자라면 칩 영역만 가로 스크롤된다.
+  &__filter-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
   &__chips {
     display: flex;
+    align-items: center;
     gap: 8px;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none; // Firefox
+
+    &::-webkit-scrollbar {
+      display: none; // Chrome/Safari
+    }
+  }
+
+  // 보기 방식 토글 (1열/2열) — 항상 오른쪽에 고정
+  &__view {
+    display: flex;
+    flex-shrink: 0;
+    gap: 4px;
+    padding: 3px;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 16px;
+  }
+
+  &__view-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 26px;
+    color: $ink-faint;
+    background: none;
+    border: none;
+    border-radius: 13px;
+    cursor: pointer;
+
+    &--active {
+      color: $surface;
+      background-color: $accent;
+    }
   }
 
   &__chip {
+    flex-shrink: 0; // 한 줄 배치에서 찌그러지지 않도록
+    white-space: nowrap;
     font-family: $font-body;
     font-size: 13px;
     font-weight: 400;
     color: $ink-soft;
-    padding: 8px 16px;
+    padding: 8px 14px;
     background-color: $surface;
     border: 1px solid $line;
     border-radius: 16px;
@@ -105,26 +153,22 @@
     }
   }
 
-  // Grid (2열)
-  &__grid {
+  // 목록 — 1열(기본) 또는 2열, 카드(PoemCard)는 그대로 두고 배치만 바꾼다
+  &__grid--1 {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 32px;
   }
 
-  &__row {
+  &__grid--2 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
+    align-items: start; // 원본 비율이라 높이가 달라도 각 카드는 위 기준 정렬
+    gap: 28px 16px;
 
-  &__row > * {
-    min-width: 0;
-  }
-
-  // 표지 비율을 일반 책 비율(2:3)로 변경
-  .poem-card__cover {
-    aspect-ratio: 2 / 3;
+    > * {
+      min-width: 0;
+    }
   }
 
   &__empty {

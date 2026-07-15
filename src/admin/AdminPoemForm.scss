@@ -102,14 +102,14 @@
     gap: 8px;
   }
 
+  // 크롭 없이 사진의 원본 비율 그대로 노출
   &__cover-thumb {
+    display: block;
     flex-shrink: 0;
     width: 96px;
-    aspect-ratio: 3 / 4;
+    height: auto;
     border-radius: 3px;
     background-color: $accent-soft;
-    background-size: cover;
-    background-position: center;
     box-shadow: 0 8px 18px -8px rgba(43, 40, 35, 0.28);
   }
 

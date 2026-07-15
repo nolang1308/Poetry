@@ -87,6 +87,23 @@ export function Menu({ size = 24, className }: IconProps) {
   ))
 }
 
+export function Square({ size = 16, className }: IconProps) {
+  return base(size, className, (
+    <rect width="18" height="18" x="3" y="3" rx="2" />
+  ))
+}
+
+export function LayoutGrid({ size = 16, className }: IconProps) {
+  return base(size, className, (
+    <>
+      <rect width="7" height="7" x="3" y="3" rx="1" />
+      <rect width="7" height="7" x="14" y="3" rx="1" />
+      <rect width="7" height="7" x="14" y="14" rx="1" />
+      <rect width="7" height="7" x="3" y="14" rx="1" />
+    </>
+  ))
+}
+
 export function Loader({ size = 16, className }: IconProps) {
   return base(size, className, <path d="M21 12a9 9 0 1 1-6.219-8.56" />)
 }
