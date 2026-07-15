@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { usePoems } from '../hooks/usePoems'
 import { addPoem, updatePoem } from '../data/poemsRepo'
-import { resizeImage } from '../utils/image'
+import { fileToEditableUrl } from '../utils/image'
 import AutoTextarea from '../components/AutoTextarea'
 import RichEditor from '../components/RichEditor'
 import PoemPreview from '../components/PoemPreview'
+import ImageCropper from '../components/ImageCropper'
 import type { Poem } from '../data/poems'
 import './AdminPoemForm.scss'
 
@@ -53,25 +54,33 @@ function PoemForm({ id, initial }: { id?: string; initial: Poem }) {
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [preview, setPreview] = useState(false)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
 
   const set = (key: keyof Poem, value: string) =>
     setForm((f) => ({ ...f, [key]: value }))
 
   const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+    e.target.value = '' // 같은 파일 다시 선택 가능하도록 초기화
     if (!file) return
     if (!file.type.startsWith('image/')) {
       setError('이미지 파일만 등록할 수 있습니다.')
       return
     }
     try {
-      const dataUrl = await resizeImage(file)
-      set('image', dataUrl)
+      // 원본을 크롭 편집기로 열어 위치·확대를 맞춘 뒤 표지로 저장
+      const dataUrl = await fileToEditableUrl(file)
+      setCropSrc(dataUrl)
       setFileName(file.name)
       setError('')
     } catch {
       setError('이미지를 불러오지 못했습니다.')
     }
+  }
+
+  const onCropConfirm = (dataUrl: string) => {
+    set('image', dataUrl)
+    setCropSrc(null)
   }
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -131,18 +140,37 @@ function PoemForm({ id, initial }: { id?: string; initial: Poem }) {
 
               <div className="admin-form__field">
                 <span className="admin-form__label">표지 사진</span>
-                <label className="admin-form__file">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="admin-form__file-input"
-                    onChange={onFile}
-                  />
-                  <span className="admin-form__file-btn">파일 선택</span>
-                  <span className="admin-form__file-name">
-                    {fileName || (form.image ? '등록된 사진' : '선택된 파일 없음')}
-                  </span>
-                </label>
+                <div className="admin-form__cover-row">
+                  <label className="admin-form__file">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="admin-form__file-input"
+                      onChange={onFile}
+                    />
+                    <span className="admin-form__file-btn">파일 선택</span>
+                    <span className="admin-form__file-name">
+                      {fileName || (form.image ? '등록된 사진' : '선택된 파일 없음')}
+                    </span>
+                  </label>
+                  {form.image && (
+                    <div className="admin-form__cover-preview">
+                      <div
+                        className="admin-form__cover-thumb"
+                        style={{ backgroundImage: `url(${form.image})` }}
+                        role="img"
+                        aria-label="표지 미리보기"
+                      />
+                      <button
+                        type="button"
+                        className="admin-form__cover-edit"
+                        onClick={() => setCropSrc(form.image)}
+                      >
+                        위치 조정
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <label className="admin-form__field">
@@ -182,6 +210,14 @@ function PoemForm({ id, initial }: { id?: string; initial: Poem }) {
 
       {preview && (
         <PoemPreview poem={form} onClose={() => setPreview(false)} />
+      )}
+
+      {cropSrc && (
+        <ImageCropper
+          src={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onConfirm={onCropConfirm}
+        />
       )}
     </div>
   )

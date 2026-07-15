@@ -1,0 +1,103 @@
+@use '../styles/variables' as *;
+
+.image-cropper {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(20, 18, 15, 0.92);
+
+  // 크롭 영역 (react-easy-crop 이 절대배치로 채움)
+  &__stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+
+    // 크롭 프레임 (react-easy-crop 기본 요소)
+    .reactEasyCrop_CropArea {
+      border-radius: 3px;
+      box-shadow: 0 0 0 9999px rgba(20, 18, 15, 0.6);
+    }
+  }
+
+  &__panel {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px clamp(16px, 4vw, 40px) calc(20px + env(safe-area-inset-bottom));
+    background-color: $surface;
+    border-top: 1px solid $line;
+  }
+
+  &__hint {
+    margin: 0;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+    text-align: center;
+  }
+
+  &__zoom {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  &__zoom-label {
+    flex-shrink: 0;
+    font-family: $font-body;
+    font-size: 12px;
+    color: $ink-faint;
+  }
+
+  &__zoom-range {
+    flex: 1;
+    accent-color: $accent;
+    cursor: pointer;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  &__btn {
+    padding: 12px 28px;
+    font-family: $font-body;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    cursor: pointer;
+
+    &--ghost {
+      color: $ink-soft;
+      background-color: $surface;
+      border-color: $line;
+
+      &:hover {
+        color: $ink;
+      }
+    }
+
+    &--primary {
+      color: $surface;
+      background-color: $accent;
+
+      &:hover {
+        background-color: #354d43;
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+    }
+  }
+}

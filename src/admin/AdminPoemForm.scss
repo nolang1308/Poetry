@@ -88,7 +88,43 @@
     flex: 1;
   }
 
-  // 파일 업로드
+  // 파일 업로드 + 표지 썸네일 미리보기
+  &__cover-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__cover-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__cover-thumb {
+    flex-shrink: 0;
+    width: 96px;
+    aspect-ratio: 3 / 4;
+    border-radius: 3px;
+    background-color: $accent-soft;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 8px 18px -8px rgba(43, 40, 35, 0.28);
+  }
+
+  &__cover-edit {
+    font-family: $font-body;
+    font-size: 12px;
+    font-weight: 500;
+    color: $accent;
+    background: none;
+    border: none;
+    padding: 2px 4px;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
   &__file {
     display: flex;
     align-items: center;
