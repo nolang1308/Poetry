@@ -88,8 +88,9 @@ $pad-x: clamp(48px, 5vw, 88px);
 
   &__cta {
     display: flex;
-    align-items: center;
-    gap: clamp(20px, 2vw, 32px);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(14px, 1.4vw, 20px);
   }
 
   &__primary-button {
