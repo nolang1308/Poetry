@@ -1,5 +1,6 @@
 import { useRef } from 'react'
-import { useEditor, useEditorState, EditorContent } from '@tiptap/react'
+import { Extension, useEditor, useEditorState, EditorContent } from '@tiptap/react'
+import { Plugin, PluginKey, Selection } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
 import { TextStyle, FontSize, FontFamily } from '@tiptap/extension-text-style'
@@ -12,6 +13,36 @@ interface Props {
   value: string
   onChange: (html: string) => void
 }
+
+// 붙여넣기 후 커서가 항상 붙여넣은 문장의 끝에 오게 하는 확장.
+// 기본 동작도 커서를 삽입분 끝에 두지만, 커서 뒤에 빈 문단(빈 줄)만 남아
+// 있으면 커서가 끝에서 한두 줄 위에 있는 것처럼 보인다. 붙여넣기 직후
+// 커서 뒤가 전부 빈 내용이면 그 빈 줄들을 지워 커서를 진짜 끝에 맞춘다.
+// (커서 뒤에 실제 글·사진이 있는 중간 붙여넣기는 건드리지 않는다.)
+const PasteCursorToEnd = Extension.create({
+  name: 'pasteCursorToEnd',
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey('pasteCursorToEnd'),
+        appendTransaction: (transactions, _oldState, newState) => {
+          if (!transactions.some((tr) => tr.getMeta('uiEvent') === 'paste')) return null
+          const from = newState.selection.to
+          const end = newState.doc.content.size
+          if (from >= end) return null
+          // 커서 뒤 내용을 텍스트로 요약 (사진 등 리프 노드는 'X'로 간주)
+          const after = newState.doc.textBetween(from, end, '\n', (leaf) =>
+            leaf.type.name === 'hardBreak' ? '' : 'X',
+          )
+          if (after.trim()) return null
+          const tr = newState.tr.delete(from, end)
+          tr.setSelection(Selection.atEnd(tr.doc)).scrollIntoView()
+          return tr
+        },
+      }),
+    ]
+  },
+})
 
 // 시 내용 폰트 프리셋 (빈 값 = 사이트 기본인 꾹꾹체) — 로드된 폰트와 맞춘다
 const FONT_FAMILIES = [
@@ -46,6 +77,7 @@ function RichEditor({ value, onChange }: Props) {
       FontFamily,
       // 삽입된 이미지를 드래그로 리사이즈 + 좌/가운데/우 정렬
       ImageResize.configure({ inline: false }),
+      PasteCursorToEnd,
     ],
     content: value,
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
