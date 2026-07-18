@@ -10,6 +10,7 @@ interface MobileMenuProps {
 
 const links: { label: string; to: string; external?: boolean }[] = [
   { label: '홈', to: '/' },
+  { label: '시집', to: '/books' },
   { label: '시', to: '/poems' },
 ]
 

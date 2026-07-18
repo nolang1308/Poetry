@@ -2,11 +2,12 @@ import { Link } from 'react-router-dom'
 import './WebNav.scss'
 
 interface WebNavProps {
-  active: 'home' | 'poems'
+  active: 'home' | 'books' | 'poems'
 }
 
 const links: { label: string; to: string; key: WebNavProps['active'] }[] = [
   { label: '홈', to: '/', key: 'home' },
+  { label: '시집', to: '/books', key: 'books' },
   { label: '시', to: '/poems', key: 'poems' },
 ]
 

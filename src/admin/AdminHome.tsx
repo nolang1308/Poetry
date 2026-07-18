@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAdmin } from './AdminContext'
 import { usePoems } from '../hooks/usePoems'
+import { useBooks } from '../hooks/useBooks'
 import { deletePoems } from '../data/poemsRepo'
-import { Check, Trash, Plus, PenLine, X, Search } from '../components/icons'
+import { deleteBook } from '../data/booksRepo'
+import { Check, Trash, Plus, PenLine, X, Search, Book } from '../components/icons'
 import './AdminHome.scss'
 
 const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, '')
@@ -11,6 +13,7 @@ const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, '')
 function AdminHome() {
   const { logout } = useAdmin()
   const { poems, loading } = usePoems()
+  const { books } = useBooks()
   const navigate = useNavigate()
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [query, setQuery] = useState('')
@@ -47,6 +50,15 @@ function AdminHome() {
     try {
       await deletePoems([...selected])
       clearSelection()
+    } catch {
+      window.alert('삭제에 실패했습니다.')
+    }
+  }
+
+  const removeBook = async (id: string, name: string) => {
+    if (!window.confirm(`시집 '${name}'을(를) 삭제할까요? (담긴 시는 지워지지 않습니다)`)) return
+    try {
+      await deleteBook(id)
     } catch {
       window.alert('삭제에 실패했습니다.')
     }
@@ -104,11 +116,54 @@ function AdminHome() {
               {q && ` · 검색 ${filtered.length}편`}
             </p>
           </div>
-          <Link to="/admin/new" className="admin-home__register">
-            <Plus size={16} />
-            시 등록
-          </Link>
+          <div className="admin-home__header-actions">
+            <Link
+              to="/admin/book/new"
+              className="admin-home__register admin-home__register--book"
+            >
+              <Book size={16} />
+              시집 만들기
+            </Link>
+            <Link to="/admin/new" className="admin-home__register">
+              <Plus size={16} />
+              시 등록
+            </Link>
+          </div>
         </div>
+
+        {books.length > 0 && (
+          <section className="admin-home__books">
+            <h2 className="admin-home__books-title">시집 · {books.length}권</h2>
+            <ul className="admin-home__book-list">
+              {books.map((book) => (
+                <li key={book.id} className="admin-home__book-row">
+                  <Book size={16} className="admin-home__book-icon" />
+                  <span className="admin-home__book-name">{book.name}</span>
+                  <span className="admin-home__book-count">
+                    시 {book.poemIds.length}편
+                  </span>
+                  <div className="admin-home__book-actions">
+                    <Link
+                      to={`/admin/book/edit/${book.id}`}
+                      className="admin-card__btn"
+                    >
+                      <PenLine size={14} />
+                      수정
+                    </Link>
+                    <button
+                      type="button"
+                      className="admin-card__btn admin-card__btn--danger"
+                      onClick={() => removeBook(book.id, book.name)}
+                    >
+                      <Trash size={14} />
+                      삭제
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <div className="admin-home__search">
           <Search size={18} className="admin-home__search-icon" />

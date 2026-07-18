@@ -24,7 +24,7 @@ function WebHome({ home }: { home: HomeContent }) {
           <p className="web-home__intro">{home.intro}</p>
 
           <div className="web-home__cta">
-            <Link to="/poems" className="web-home__primary-button">
+            <Link to="/books" className="web-home__primary-button">
               <span>{home.ctaLabel}</span>
               <ArrowRight size={18} />
             </Link>

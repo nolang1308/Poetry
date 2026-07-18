@@ -5,6 +5,9 @@ import './index.scss'
 import Home from './pages/Home'
 import Poems from './pages/Poems'
 import PoemDetail from './pages/PoemDetail'
+import Books from './pages/Books'
+import BookPoems from './pages/BookPoems'
+import AdminBookForm from './admin/AdminBookForm'
 import AdminLayout from './admin/AdminLayout'
 import AdminLogin from './admin/AdminLogin'
 import AdminHome from './admin/AdminHome'
@@ -14,6 +17,8 @@ import RequireAuth from './admin/RequireAuth'
 
 const router = createBrowserRouter([
   { path: '/', element: <Home /> },
+  { path: '/books', element: <Books /> },
+  { path: '/books/:id', element: <BookPoems /> },
   { path: '/poems', element: <Poems /> },
   { path: '/poems/:title', element: <PoemDetail /> },
   {
@@ -51,6 +56,22 @@ const router = createBrowserRouter([
         element: (
           <RequireAuth>
             <AdminPoemForm />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: 'book/new',
+        element: (
+          <RequireAuth>
+            <AdminBookForm />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: 'book/edit/:id',
+        element: (
+          <RequireAuth>
+            <AdminBookForm />
           </RequireAuth>
         ),
       },

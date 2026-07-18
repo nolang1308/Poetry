@@ -23,7 +23,22 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return rows
 }
 
-function WebPoems({ poems, loading }: { poems: PoemDoc[]; loading: boolean }) {
+interface WebPoemsProps {
+  poems: PoemDoc[]
+  loading: boolean
+  // 시집 페이지에서 재사용할 때 제목/설명/활성 메뉴를 바꿔 끼운다
+  heading?: string
+  sub?: string
+  navActive?: 'poems' | 'books'
+}
+
+function WebPoems({
+  poems,
+  loading,
+  heading = '시',
+  sub = '한 편의 시는 한 권의 책이 됩니다. 마음에 드는 표지를 골라 펼쳐 보세요.',
+  navActive = 'poems',
+}: WebPoemsProps) {
   const { query, setQuery, sort, setSort, results } = usePoemFilter(poems)
 
   // 무한 스크롤: 처음엔 10편, 하단 센티널이 보일 때마다 10편씩 더 노출
@@ -66,14 +81,12 @@ function WebPoems({ poems, loading }: { poems: PoemDoc[]; loading: boolean }) {
 
   return (
     <div className="web-poems">
-      <WebNav active="poems" />
+      <WebNav active={navActive} />
 
       <div className="web-poems__container">
         <header className="web-poems__header">
-          <h1 className="web-poems__title">시</h1>
-          <p className="web-poems__sub">
-            한 편의 시는 한 권의 책이 됩니다. 마음에 드는 표지를 골라 펼쳐 보세요.
-          </p>
+          <h1 className="web-poems__title">{heading}</h1>
+          <p className="web-poems__sub">{sub}</p>
         </header>
 
         <div className="web-poems__controls">

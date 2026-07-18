@@ -51,7 +51,7 @@ function MobileHome({ home }: { home: HomeContent }) {
       </div>
 
       <div className="mobile-home__button-wrap">
-        <Link to="/poems" className="mobile-home__primary-button">
+        <Link to="/books" className="mobile-home__primary-button">
           <span>{home.ctaLabel}</span>
           <ArrowRight size={18} />
         </Link>

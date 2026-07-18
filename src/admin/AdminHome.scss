@@ -106,6 +106,12 @@
     color: $ink-soft;
   }
 
+  &__header-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   &__register {
     display: inline-flex;
     align-items: center;
@@ -121,6 +127,95 @@
 
     &:hover {
       background-color: #354d43;
+    }
+
+    // 시집 만들기: 외곽선 버전 (시 등록과 나란히 배치)
+    &--book {
+      color: $accent;
+      background-color: $surface;
+      border: 1px solid $accent;
+
+      &:hover {
+        color: $surface;
+        background-color: $accent;
+      }
+    }
+  }
+
+  // 시집 관리 목록
+  &__books {
+    margin-top: 28px;
+    padding: 18px;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 6px;
+  }
+
+  &__books-title {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__book-list {
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__book-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 4px;
+    border-top: 1px solid $line;
+  }
+
+  &__book-icon {
+    color: $accent;
+    flex-shrink: 0;
+  }
+
+  &__book-name {
+    font-family: $font-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: $ink;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__book-count {
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-faint;
+    flex-shrink: 0;
+  }
+
+  &__book-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+    flex-shrink: 0;
+
+    .admin-card__btn {
+      flex: none;
+    }
+  }
+
+  @media (max-width: 520px) {
+    &__book-row {
+      flex-wrap: wrap;
+    }
+
+    &__book-actions {
+      width: 100%;
+      margin-left: 0;
     }
   }
 

@@ -29,7 +29,20 @@ function loadViewCols(): ViewCols {
   }
 }
 
-function MobilePoems({ poems, loading }: { poems: PoemDoc[]; loading: boolean }) {
+interface MobilePoemsProps {
+  poems: PoemDoc[]
+  loading: boolean
+  // 시집 페이지에서 재사용할 때 상단 제목/뒤로가기 목적지를 바꿔 끼운다
+  heading?: string
+  backTo?: string
+}
+
+function MobilePoems({
+  poems,
+  loading,
+  heading = '시',
+  backTo = '/',
+}: MobilePoemsProps) {
   const { query, setQuery, sort, setSort, results } = usePoemFilter(poems)
   const [menuOpen, setMenuOpen] = useState(false)
   const [cols, setCols] = useState<ViewCols>(loadViewCols)
@@ -83,10 +96,10 @@ function MobilePoems({ poems, loading }: { poems: PoemDoc[]; loading: boolean })
   return (
     <div className="mobile-poems">
       <header className="mobile-poems__top-bar">
-        <Link to="/" className="mobile-poems__icon-btn" aria-label="뒤로">
+        <Link to={backTo} className="mobile-poems__icon-btn" aria-label="뒤로">
           <ChevronLeft size={24} />
         </Link>
-        <span className="mobile-poems__title">시</span>
+        <span className="mobile-poems__title">{heading}</span>
         <button
           type="button"
           className="mobile-poems__icon-btn"

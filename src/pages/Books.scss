@@ -1,0 +1,277 @@
+@use '../styles/variables' as *;
+
+$pad-x: clamp(48px, 5vw, 88px);
+
+// ── Web ──
+.web-books {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background-color: $bg;
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: $max-content;
+    margin: 0 auto;
+    padding: 0 $pad-x 72px;
+  }
+
+  &__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 36px;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: clamp(38px, 3.4vw, 48px);
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__sub {
+    margin: 12px 0 0;
+    font-family: $font-body;
+    font-size: 16px;
+    line-height: 1.7;
+    color: $ink-soft;
+  }
+
+  &__all-link {
+    flex-shrink: 0;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-soft;
+    text-decoration: none;
+    padding-bottom: 6px;
+
+    &:hover {
+      color: $accent;
+    }
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    display: none;
+  }
+}
+
+// ── Mobile ──
+.mobile-books {
+  display: none; // 좁은 화면에서만 표시
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background-color: $bg;
+
+  &__top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 20px;
+  }
+
+  &__icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: $ink;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  &__title {
+    font-family: $font-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__divider {
+    width: 100%;
+    height: 1px;
+    background-color: $line;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 20px 40px;
+  }
+
+  &__all-link {
+    align-self: flex-end;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+    text-decoration: none;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    display: flex;
+  }
+}
+
+// ── 공용 (그리드 · 빈 상태) ──
+.books__grid {
+  display: grid;
+  gap: 36px 28px;
+  padding-top: 32px;
+
+  .web-books & {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  .mobile-books & {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 16px;
+    padding-top: 4px;
+  }
+}
+
+.books__empty {
+  margin-top: 60px;
+  text-align: center;
+  font-family: $font-body;
+  font-size: 15px;
+  color: $ink-faint;
+}
+
+// 시집이 하나도 없을 때의 빈 상태 안내
+.books__none {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: clamp(48px, 10vh, 96px);
+  text-align: center;
+}
+
+.books__none-icon {
+  color: $accent-soft;
+  margin-bottom: 8px;
+}
+
+.books__none-text {
+  margin: 0;
+  font-family: $font-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: $ink;
+}
+
+.books__none-sub {
+  margin: 0;
+  font-family: $font-body;
+  font-size: 14px;
+  line-height: 1.7;
+  color: $ink-soft;
+}
+
+.books__none-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 14px 28px;
+  font-family: $font-body;
+  font-size: 15px;
+  font-weight: 700;
+  color: $surface;
+  background-color: $accent;
+  border-radius: 100px;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: #354d43;
+  }
+}
+
+// ── 시집 카드 ──
+.book-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-decoration: none;
+
+  &__cover {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border-radius: 3px;
+    overflow: hidden;
+    background-color: $accent-soft;
+    box-shadow: 0 12px 26px -10px rgba(43, 40, 35, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  &:hover &__cover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 32px -12px rgba(43, 40, 35, 0.35);
+  }
+
+  &__cover-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__cover-mark {
+    font-family: $font-serif;
+    font-size: 44px;
+    font-weight: 700;
+    color: $surface;
+  }
+
+  // 책등 느낌의 왼쪽 띠
+  &__spine {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 10px;
+    background: linear-gradient(
+      to right,
+      rgba(43, 40, 35, 0.35),
+      rgba(43, 40, 35, 0)
+    );
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__name {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__count {
+    margin: 0;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-faint;
+  }
+}

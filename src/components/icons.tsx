@@ -117,6 +117,12 @@ export function ArrowLeft({ size = 18, className }: IconProps) {
   ))
 }
 
+export function Book({ size = 16, className }: IconProps) {
+  return base(size, className, (
+    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+  ))
+}
+
 export function Bookmark({ size = 18, className }: IconProps) {
   return base(
     size,
