@@ -20,7 +20,11 @@ function AdminBookForm() {
   const { books, loading } = useBooks()
 
   if (!id) {
-    return <BookForm initial={{ name: '', poemIds: [], image: '' }} />
+    return (
+      <BookForm
+        initial={{ name: '', name2: '', poemIds: [], image: '', lastImage: '' }}
+      />
+    )
   }
 
   if (loading) {
@@ -39,18 +43,28 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
   const { poems, loading } = usePoems()
   const { books } = useBooks()
   const [name, setName] = useState(initial.name)
+  // 표지 제목 둘째 줄 (선택)
+  const [name2, setName2] = useState(initial.name2 ?? '')
   // 선택한 순서를 그대로 시집의 시 순서로 쓴다
   const [selectedIds, setSelectedIds] = useState<string[]>(initial.poemIds)
   const [image, setImage] = useState(initial.image ?? '')
   const [fileName, setFileName] = useState('')
+  // 펼침 모션 맨 마지막 장에 보여줄 사진 (선택)
+  const [lastImage, setLastImage] = useState(initial.lastImage ?? '')
+  const [lastFileName, setLastFileName] = useState('')
   const [cropSrc, setCropSrc] = useState<string | null>(null)
+  // 크롭 결과를 표지/마지막 장 중 어디에 반영할지
+  const [cropTarget, setCropTarget] = useState<'cover' | 'last'>('cover')
   const [query, setQuery] = useState('')
   // 시 선택 목록의 등록순 방향 (false = 최신부터 내림차순, true = 오래된 것부터)
   const [dateAsc, setDateAsc] = useState(false)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
-  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFile = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    target: 'cover' | 'last',
+  ) => {
     const file = e.target.files?.[0]
     e.target.value = '' // 같은 파일 다시 선택 가능하도록 초기화
     if (!file) return
@@ -59,10 +73,12 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
       return
     }
     try {
-      // 원본을 크롭 편집기로 열어 위치·확대를 맞춘 뒤 표지로 저장
+      // 원본을 크롭 편집기로 열어 위치·확대를 맞춘 뒤 저장
       const dataUrl = await fileToEditableUrl(file)
+      setCropTarget(target)
       setCropSrc(dataUrl)
-      setFileName(file.name)
+      if (target === 'cover') setFileName(file.name)
+      else setLastFileName(file.name)
       setError('')
     } catch {
       setError('이미지를 불러오지 못했습니다.')
@@ -70,7 +86,8 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
   }
 
   const onCropConfirm = (dataUrl: string) => {
-    setImage(dataUrl)
+    if (cropTarget === 'cover') setImage(dataUrl)
+    else setLastImage(dataUrl)
     setCropSrc(null)
   }
 
@@ -272,7 +289,13 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
     }
     setSaving(true)
     try {
-      const data = { name: name.trim(), poemIds: selectedIds, image }
+      const data = {
+        name: name.trim(),
+        name2: name2.trim(),
+        poemIds: selectedIds,
+        image,
+        lastImage,
+      }
       if (editing && id) await updateBook(id, data)
       else await addBook(data)
       navigate('/admin/home')
@@ -295,12 +318,22 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
         <form className="admin-form__body" onSubmit={onSubmit}>
           <div className="admin-form__fields">
             <label className="admin-form__field">
-              <span className="admin-form__label">시집 이름</span>
+              <span className="admin-form__label">시집 이름 (표지 첫째 줄)</span>
               <input
                 className="admin-form__input"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="예: 계절의 결"
+              />
+            </label>
+
+            <label className="admin-form__field">
+              <span className="admin-form__label">표지 둘째 줄 (선택)</span>
+              <input
+                className="admin-form__input"
+                value={name2}
+                onChange={(e) => setName2(e.target.value)}
+                placeholder="표지 제목 아래에 이어질 문구"
               />
             </label>
 
@@ -315,7 +348,7 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
                     type="file"
                     accept="image/*"
                     className="admin-form__file-input"
-                    onChange={onFile}
+                    onChange={(e) => onFile(e, 'cover')}
                   />
                   <span className="admin-form__file-btn">파일 선택</span>
                   <span className="admin-form__file-name">
@@ -333,7 +366,10 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
                       <button
                         type="button"
                         className="admin-form__cover-edit"
-                        onClick={() => setCropSrc(image)}
+                        onClick={() => {
+                          setCropTarget('cover')
+                          setCropSrc(image)
+                        }}
                       >
                         위치 조정
                       </button>
@@ -346,6 +382,60 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
                         }}
                       >
                         표지 삭제
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="admin-form__field">
+              <span className="admin-form__label">마지막 페이지 사진 (선택)</span>
+              <p className="admin-book-form__guide">
+                시집이 다 펼쳐진 뒤, 오른쪽에 남는 페이지에 인쇄되어 보이는
+                사진입니다.
+              </p>
+              <div className="admin-form__cover-row">
+                <label className="admin-form__file">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="admin-form__file-input"
+                    onChange={(e) => onFile(e, 'last')}
+                  />
+                  <span className="admin-form__file-btn">파일 선택</span>
+                  <span className="admin-form__file-name">
+                    {lastFileName ||
+                      (lastImage ? '등록된 사진' : '선택된 파일 없음')}
+                  </span>
+                </label>
+                {lastImage && (
+                  <div className="admin-form__cover-preview">
+                    <img
+                      className="admin-form__cover-thumb"
+                      src={lastImage}
+                      alt="마지막 페이지 사진 미리보기"
+                    />
+                    <div className="admin-book-form__cover-btns">
+                      <button
+                        type="button"
+                        className="admin-form__cover-edit"
+                        onClick={() => {
+                          setCropTarget('last')
+                          setCropSrc(lastImage)
+                        }}
+                      >
+                        위치 조정
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-form__cover-edit admin-book-form__cover-remove"
+                        onClick={() => {
+                          setLastImage('')
+                          setLastFileName('')
+                        }}
+                      >
+                        사진 삭제
                       </button>
                     </div>
                   </div>

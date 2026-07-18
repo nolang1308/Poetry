@@ -87,8 +87,17 @@ function BookCard({ book, poemById }: { book: BookDoc; poemById: Map<string, Poe
       <div className="book-card__book">
         <span className="book-card__back" aria-hidden="true" />
         <span className="book-card__pages" aria-hidden="true" />
-        {/* 펼쳤을 때 오른쪽 면이 되는 바닥 페이지 (아래에 수십 장이 쌓인 느낌) */}
-        <span className="book-card__page-base" aria-hidden="true" />
+        {/* 펼쳤을 때 오른쪽 면이 되는 바닥 페이지 (아래에 수십 장이 쌓인 느낌).
+            관리자가 지정한 "마지막 페이지 사진"이 있으면 여기에 인쇄된다 */}
+        <span className="book-card__page-base" aria-hidden="true">
+          {book.lastImage && (
+            <img
+              className="book-card__page-base-img"
+              src={book.lastImage}
+              alt=""
+            />
+          )}
+        </span>
         {/* 펼침 모션에서 순서대로 넘어가는 속지들 (평소엔 표지 뒤에 숨어 있음).
             깊은 장(--ri 작은 쪽)부터 넘어가 마지막 장이 맨 위에 얹힌다.
             시집에 담긴 시 사진이 있으면 넘어가는 순서대로 보여준다 */}
@@ -109,8 +118,13 @@ function BookCard({ book, poemById }: { book: BookDoc; poemById: Map<string, Poe
           </span>
         ))}
         <div className="book-card__cover">
-          {/* 표지 구성: 좌상단 제목 · 아래쪽 사진(오른쪽 끝까지, 원본 비율 유지) */}
-          <span className="book-card__cover-title">{book.name}</span>
+          {/* 표지 구성: 좌상단 제목(첫째·둘째 줄 따로) · 아래쪽 사진 */}
+          <span className="book-card__cover-title">
+            <span className="book-card__cover-title-line">{book.name}</span>
+            {book.name2 && (
+              <span className="book-card__cover-title-line">{book.name2}</span>
+            )}
+          </span>
           <span className="book-card__cover-rule" aria-hidden="true" />
           <div
             className={

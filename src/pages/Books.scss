@@ -233,11 +233,12 @@ $pad-x: clamp(48px, 5vw, 88px);
     }
   }
 
-  // 뒤표지: 파스텔 톤 연두 천 커버 느낌.
-  // 짙은 윤곽선과 진한 바닥 그림자로 두께감을 만든다
+  // 뒤표지: 파스텔 톤 연두 커버.
+  // 실제 하드커버처럼 페이지 다발보다 판이 커서, 위·아래·오른쪽으로
+  // 살짝 튀어나온 가장자리가 페이지 뒤로 보인다.
   &__back {
     position: absolute;
-    inset: 0;
+    inset: -1.5px -2px -1.5px 0; // 페이지보다 살짝만 큰 판
     border: 1.5px solid rgba(20, 18, 14, 0.55);
     border-radius: 2px 6px 6px 2px;
     background: linear-gradient(150deg, #ddefbc 0%, #c6e29a 55%, #b0d47f 100%);
@@ -245,33 +246,36 @@ $pad-x: clamp(48px, 5vw, 88px);
     box-shadow: 0 26px 40px -16px rgba(20, 18, 14, 0.55);
   }
 
-  // 책배: 페이지 단면. 종이 줄무늬 위에 양 끝을 은은하게 어둡게 눌러
-  // 표지 사이에 끼인 깊이감을 준다
+  // 책배: 페이지 단면. 표지 판들보다 사방으로 안쪽에 들어가 있어
+  // (위아래·오른쪽 인셋 + 앞뒤 2px 여유) 표지가 페이지보다 튀어나와 보인다.
+  // 표지 안쪽 면에 닿는 양 끝은 짙은 경계선, 그 안쪽은 촘촘한 종이 결.
   &__pages {
     position: absolute;
-    top: 1.5%;
-    bottom: 1.5%;
-    right: 0;
-    width: var(--book-depth);
+    top: 2.5%;
+    bottom: 2.5%;
+    right: 0; // 단면은 바깥에서 그대로 보이게 표지 오른쪽 끝에 맞춘다
+    width: calc(var(--book-depth) - 4px);
     transform-origin: right center;
-    transform: rotateY(-90deg);
+    transform: translateZ(-2px) rotateY(-90deg);
     // 위아래로 표지 사이에 끼인 경계선
     border-top: 1.5px solid rgba(20, 18, 14, 0.45);
     border-bottom: 1.5px solid rgba(20, 18, 14, 0.45);
     background:
       linear-gradient(
         to right,
-        rgba(43, 40, 35, 0.16),
+        rgba(20, 18, 14, 0.35),
+        rgba(43, 40, 35, 0.1) 12%,
         rgba(43, 40, 35, 0) 30%,
         rgba(43, 40, 35, 0) 70%,
-        rgba(43, 40, 35, 0.2)
+        rgba(43, 40, 35, 0.12) 88%,
+        rgba(20, 18, 14, 0.38)
       ),
       repeating-linear-gradient(
         to right,
         #f6f1e3 0,
         #f6f1e3 2px,
-        #e8e0cc 2px,
-        #e8e0cc 3px
+        #e4dbc4 2px,
+        #e4dbc4 3px
       );
   }
 
@@ -296,20 +300,26 @@ $pad-x: clamp(48px, 5vw, 88px);
   }
 
 
+  // 제목: 관리자가 첫째·둘째 줄을 따로 적는다. 각 줄은 한 줄로 말줄임.
   &__cover-title {
+    max-width: 100%;
     font-family: $font-serif;
     font-size: 20px;
     font-weight: 700;
     line-height: 1.35;
     color: $ink;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
 
     .mobile-books & {
       font-size: 15px;
     }
+  }
+
+  &__cover-title-line {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   // 제목 아래 짧은 포인트 선
@@ -427,6 +437,19 @@ $pad-x: clamp(48px, 5vw, 88px);
         right / 12px 100% no-repeat,
       #fbf7ec;
     transform: translateZ(calc(-1 * var(--book-depth) + 2px));
+  }
+
+  // 바닥 페이지에 인쇄된 마지막 사진: 종이 여백을 남긴 도판 느낌.
+  // 제본선 그늘(왼쪽)과 단면 줄무늬(오른쪽)를 피해 안쪽에 앉힌다.
+  &__page-base-img {
+    position: absolute;
+    top: 7%;
+    left: 12%;
+    width: 76%;
+    height: 86%;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(43, 40, 35, 0.18);
   }
 
   // 속지에 인쇄된 시 사진: 종이 여백을 남긴 도판 느낌.
