@@ -5,16 +5,17 @@ import MobileMenu from '../components/MobileMenu'
 import ArrowRight from '../components/ArrowRight'
 import { ChevronLeft, Menu, Book } from '../components/icons'
 import { useBooks } from '../hooks/useBooks'
+import { withViewTransition } from '../utils/viewTransition'
 import { usePoems } from '../hooks/usePoems'
 import type { BookDoc } from '../data/booksRepo'
 import type { PoemDoc } from '../data/poems'
 import './Books.scss'
 
 // 책 펼침 모션에서 촤라락 넘어가는 속지 페이지 수
-const LEAF_COUNT = 4
+const LEAF_COUNT = 8
 // 모션이 끝나기를 기다렸다가 이동하는 시간(ms). SCSS 애니메이션 길이와 맞춘다.
-// (중앙 이동·수평 세우기 0.45s → 표지 열림 → 마지막 속지 ~1.15s + 잠깐의 여운)
-const OPEN_DURATION = 1250
+// (중앙 이동 0.45s → 표지 180도 열림 → 마지막 속지 ~1.7s + 여운)
+const OPEN_DURATION = 1850
 
 // 시집 카드: 표지는 관리자가 지정한 사진 → 없으면 첫 번째 시 사진 → 없으면 詩 마크
 function BookCard({ book, poemById }: { book: BookDoc; poemById: Map<string, PoemDoc> }) {
@@ -39,10 +40,10 @@ function BookCard({ book, poemById }: { book: BookDoc; poemById: Map<string, Poe
     e.preventDefault()
     if (opening) return
     // 현재 책 위치 기준으로 화면 정중앙까지의 이동량과 확대 배율 계산.
-    // 열린 표지 날개는 책등 왼쪽으로 책 폭의 ~절반(원근 확대 포함)만큼
-    // 튀어나오므로, 그 폭까지 포함해 배율을 제한하고 책을 날개 폭의
-    // 절반만큼 오른쪽으로 밀어 "펼친 모습 전체"가 화면 중앙에 오게 한다.
-    const FLAP = 0.5
+    // 표지가 180도로 완전히 펼쳐지면 책등 왼쪽으로 책 폭만큼(FLAP=1)
+    // 펴지므로, 펼친 전체 폭(2배)이 화면 안에 들어오는 배율로 제한하고
+    // 책등(제본선)이 화면 정중앙에 오도록 오른쪽으로 민다.
+    const FLAP = 1
     const bookEl = e.currentTarget.querySelector('.book-card__book')
     if (bookEl) {
       const r = bookEl.getBoundingClientRect()
@@ -61,7 +62,10 @@ function BookCard({ book, poemById }: { book: BookDoc; poemById: Map<string, Poe
       })
     }
     setOpening(true)
-    window.setTimeout(() => navigate(`/books/${book.id}`), OPEN_DURATION)
+    // 모션이 끝나면 크로스페이드(View Transition)로 부드럽게 상세로 전환
+    window.setTimeout(() => {
+      withViewTransition(() => navigate(`/books/${book.id}`))
+    }, OPEN_DURATION)
   }
 
   return (
@@ -83,17 +87,24 @@ function BookCard({ book, poemById }: { book: BookDoc; poemById: Map<string, Poe
       <div className="book-card__book">
         <span className="book-card__back" aria-hidden="true" />
         <span className="book-card__pages" aria-hidden="true" />
+        {/* 펼쳤을 때 오른쪽 면이 되는 바닥 페이지 (아래에 수십 장이 쌓인 느낌) */}
+        <span className="book-card__page-base" aria-hidden="true" />
         {/* 펼침 모션에서 순서대로 넘어가는 속지들 (평소엔 표지 뒤에 숨어 있음).
-            시집에 담긴 시 사진이 있으면 속지에 인쇄된 도판처럼 보여준다 */}
+            깊은 장(--ri 작은 쪽)부터 넘어가 마지막 장이 맨 위에 얹힌다.
+            시집에 담긴 시 사진이 있으면 넘어가는 순서대로 보여준다 */}
         {Array.from({ length: LEAF_COUNT }, (_, i) => (
           <span
             key={i}
             className="book-card__leaf"
-            style={{ '--i': i } as React.CSSProperties}
+            style={{ '--i': i, '--ri': LEAF_COUNT - 1 - i } as React.CSSProperties}
             aria-hidden="true"
           >
-            {leafImages[i] && (
-              <img className="book-card__leaf-img" src={leafImages[i]} alt="" />
+            {leafImages[LEAF_COUNT - 1 - i] && (
+              <img
+                className="book-card__leaf-img"
+                src={leafImages[LEAF_COUNT - 1 - i]}
+                alt=""
+              />
             )}
           </span>
         ))}
@@ -114,6 +125,8 @@ function BookCard({ book, poemById }: { book: BookDoc; poemById: Map<string, Poe
             )}
           </div>
           <span className="book-card__spine" aria-hidden="true" />
+          {/* 표지 안쪽 면: 펼쳐지면 하드커버 색으로 앞면(제목·사진)을 전부 덮는다 */}
+          <span className="book-card__cover-inner" aria-hidden="true" />
         </div>
       </div>
       <div className="book-card__info">

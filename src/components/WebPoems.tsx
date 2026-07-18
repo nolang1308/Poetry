@@ -8,6 +8,7 @@ import { withViewTransition } from '../utils/viewTransition'
 import './WebPoems.scss'
 
 const sortChips: { label: string; key: SortKey }[] = [
+  { label: '전체', key: 'all' },
   { label: '좋아요순', key: 'likes' },
   { label: '등록일순', key: 'date' },
   { label: '가나다순', key: 'title' },
@@ -30,6 +31,10 @@ interface WebPoemsProps {
   heading?: string
   sub?: string
   navActive?: 'poems' | 'books'
+  // 기본 정렬 ('all'이면 전달된 순서 그대로)
+  initialSort?: SortKey
+  // 시 id → "시집번호-시번호" 번호표
+  numbers?: Map<string, string>
 }
 
 function WebPoems({
@@ -38,9 +43,11 @@ function WebPoems({
   heading = '시',
   sub = '한 편의 시는 한 권의 책이 됩니다. 마음에 드는 표지를 골라 펼쳐 보세요.',
   navActive = 'poems',
+  initialSort = 'likes',
+  numbers,
 }: WebPoemsProps) {
   const { query, setQuery, sort, setSort, dateAsc, setDateAsc, results } =
-    usePoemFilter(poems)
+    usePoemFilter(poems, initialSort)
 
   // 무한 스크롤: 처음엔 10편, 하단 센티널이 보일 때마다 10편씩 더 노출
   const [visible, setVisible] = useState(PAGE_SIZE)
@@ -148,7 +155,7 @@ function WebPoems({
               <div className="web-poems__row" key={ri}>
                 <div className="web-poems__covers">
                   {row.map((poem) => (
-                    <PoemCard key={poem.id} {...poem} />
+                    <PoemCard key={poem.id} {...poem} num={numbers?.get(poem.id)} />
                   ))}
                 </div>
                 <div className="web-poems__shelf" />

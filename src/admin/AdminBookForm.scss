@@ -47,12 +47,38 @@
     color: #b5443a;
   }
 
+  // 선택 수 + 정렬 토글을 한 줄에
+  &__list-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
   &__count {
-    margin: 10px 0 0;
+    margin: 0;
     font-family: $font-body;
     font-size: 13px;
     font-weight: 500;
     color: $accent;
+  }
+
+  // 등록순 오름/내림차순 토글
+  &__sort {
+    padding: 6px 12px;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+    background: none;
+    border: 1px solid $line;
+    border-radius: 100px;
+    cursor: pointer;
+
+    &:hover {
+      color: $accent;
+      border-color: $accent-soft;
+    }
   }
 
   &__grid {
@@ -112,6 +138,12 @@
         height: 22px;
       }
     }
+  }
+
+  // 작성(등록) 순서 번호 (제목 앞에 표시)
+  &__seq {
+    color: $ink-faint;
+    font-weight: 500;
   }
 
   // 선택 순서 번호 (체크 원 안에 표시)

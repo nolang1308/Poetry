@@ -4,14 +4,16 @@ import { useFitText } from '../hooks/useFitText'
 import type { PoemDoc } from '../data/poems'
 import './PoemCard.scss'
 
-function PoemCard({ id, title, likes, date, image }: PoemDoc) {
+// num: "시집번호-시번호" 번호표 (예: 1-3). 시집에 담긴 시에만 있다.
+function PoemCard({ id, title, likes, date, image, num }: PoemDoc & { num?: string }) {
   const to = `/poems/${encodeURIComponent(title)}`
   // 상세로 전환 중이면 공유 이름(poem-cover)으로 morph,
   // 그 외에는 카드별 고유 이름으로 재정렬 시 부드럽게 이동(FLIP).
   const isTransitioning = useViewTransitionState(to)
   const vtName = isTransitioning ? 'poem-cover' : `poem-card-${id}`
+  const shownTitle = num ? `${num}. ${title}` : title
   // 제목이 길어 두 줄이 되면 한 줄에 맞게 폰트를 줄인다.
-  const { ref: titleRef, size: titleSize } = useFitText<HTMLParagraphElement>(title)
+  const { ref: titleRef, size: titleSize } = useFitText<HTMLParagraphElement>(shownTitle)
 
   return (
     <Link to={to} viewTransition className="poem-card">
@@ -28,7 +30,7 @@ function PoemCard({ id, title, likes, date, image }: PoemDoc) {
             ref={titleRef}
             style={{ fontSize: `${titleSize}px` }}
           >
-            {title}
+            {shownTitle}
           </p>
         </div>
         <p className="poem-card__poet">권일원</p>

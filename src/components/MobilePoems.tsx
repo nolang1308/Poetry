@@ -35,6 +35,10 @@ interface MobilePoemsProps {
   // 시집 페이지에서 재사용할 때 상단 제목/뒤로가기 목적지를 바꿔 끼운다
   heading?: string
   backTo?: string
+  // 기본 정렬 ('all'이면 전달된 순서 그대로)
+  initialSort?: SortKey
+  // 시 id → "시집번호-시번호" 번호표
+  numbers?: Map<string, string>
 }
 
 function MobilePoems({
@@ -42,9 +46,11 @@ function MobilePoems({
   loading,
   heading = '시',
   backTo = '/',
+  initialSort = 'likes',
+  numbers,
 }: MobilePoemsProps) {
   const { query, setQuery, sort, setSort, dateAsc, setDateAsc, results } =
-    usePoemFilter(poems)
+    usePoemFilter(poems, initialSort)
   const [menuOpen, setMenuOpen] = useState(false)
   const [cols, setCols] = useState<ViewCols>(loadViewCols)
 
@@ -193,7 +199,7 @@ function MobilePoems({
             className={`mobile-poems__grid mobile-poems__grid--${cols}`}
           >
             {shown.map((poem) => (
-              <PoemCard key={poem.id} {...poem} />
+              <PoemCard key={poem.id} {...poem} num={numbers?.get(poem.id)} />
             ))}
           </div>
         ) : query ? (

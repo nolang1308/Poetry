@@ -277,7 +277,7 @@ $pad-x: clamp(48px, 5vw, 88px);
     inset: 0;
     border-radius: 2px 6px 6px 2px;
     overflow: hidden;
-    background-color: $surface;
+    background-color: #f8f2df; // 연한 아이보리 종이
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -381,6 +381,32 @@ $pad-x: clamp(48px, 5vw, 88px);
     transform: translateZ(calc((var(--i) + 1) * -2px));
   }
 
+  // 펼쳤을 때 오른쪽 면이 되는 바닥 페이지. 왼쪽(제본선)엔 골 그늘,
+  // 오른쪽 가장자리엔 아래에 쌓인 페이지들의 단면 줄무늬를 그린다.
+  &__page-base {
+    position: absolute;
+    inset: 1.5% 3px 1.5% 2px;
+    border-radius: 0 4px 4px 0;
+    background:
+      linear-gradient(
+          to right,
+          rgba(43, 40, 35, 0.28),
+          rgba(43, 40, 35, 0.08) 14%,
+          rgba(43, 40, 35, 0) 30%
+        )
+        left / 100% 100% no-repeat,
+      repeating-linear-gradient(
+          to left,
+          #d9d0b8 0,
+          #d9d0b8 1px,
+          #f6f1e3 1px,
+          #f6f1e3 3px
+        )
+        right / 12px 100% no-repeat,
+      #fbf7ec;
+    transform: translateZ(calc(-1 * var(--book-depth) + 2px));
+  }
+
   // 속지에 인쇄된 시 사진: 종이 여백을 남긴 도판 느낌.
   // backface-visibility로 90도를 넘겨 뒤집힌 페이지는 뒷면(맨 종이)만 보인다.
   &__leaf-img {
@@ -411,27 +437,42 @@ $pad-x: clamp(48px, 5vw, 88px);
     animation: book-backdrop-in 0.35s ease forwards;
   }
 
-  // 1단계(0~0.45s): 화면 정중앙으로 이동하며 키운다. 배율은 펼친 표지가
-  // 화면 밖으로 나가지 않도록 JS에서 계산해 --open-scale로 내려온다.
-  // rotateX(18deg): 독서대에 올려 살짝 뒤로 눕힌 각도.
+  // 1단계(0~0.45s): 화면 정중앙으로 이동하며 키운다. 배율은 180도로 펼친
+  // 전체 폭(책의 2배)이 화면 밖으로 나가지 않도록 JS에서 계산해
+  // --open-scale로 내려온다. rotateX(18deg): 독서대에 눕힌 각도.
   &--opening &__book,
   &--opening:hover &__book {
     transform: translate(var(--dx, 0px), var(--dy, 0px)) rotateX(18deg)
-      rotateY(8deg) scale(var(--open-scale, 1.6));
+      rotateY(4deg) scale(var(--open-scale, 1.4));
     transition-duration: 0.45s;
     transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 
-  // 2단계(0.35s~): 앞표지가 책등을 축으로 열린다 (완전히 펴지 않고 세워 둠)
+  // 2단계(0.3s~): 앞표지가 책등을 축으로 180도 가까이 활짝 젖혀진다
   &--opening &__cover {
     transform-origin: left center;
-    animation: book-cover-open 0.5s ease-in-out 0.35s forwards;
+    animation: book-cover-open 0.55s ease-in-out 0.3s forwards;
   }
 
-  // 3단계(0.45s~): 속지들이 시간차를 두고 촤라락 넘어가며 부챗살처럼 펼쳐진다
+  // 3단계(0.55s~): 속지들이 깊은 장부터 시간차를 두고 촤라락 넘어간다
   &--opening &__leaf {
     animation: book-leaf-flip 0.5s cubic-bezier(0.45, 0.05, 0.35, 1) forwards;
-    animation-delay: calc(0.45s + var(--i) * 0.08s);
+    animation-delay: calc(0.55s + var(--ri) * 0.09s);
+  }
+
+  // 표지 안쪽 면: 평소엔 투명. 표지가 세로로 서는 시점(~34%)을 지나면
+  // 하드커버 색으로 앞면(제목·사진·책등 띠)을 전부 덮어, 펼쳐진 뒷면에
+  // 아무것도 비치지 않게 한다. 타이밍(0.55s/0.3s)은 book-cover-open과 동일.
+  &__cover-inner {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, #d9ecb6 0%, #c6e29a 60%, #b2d581 100%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &--opening &__cover-inner {
+    animation: book-cover-inner-show 0.55s ease-in-out 0.3s forwards;
   }
 
   &__info {
@@ -466,20 +507,34 @@ $pad-x: clamp(48px, 5vw, 88px);
   }
 }
 
-// 앞표지 열림 (책등이 축). 살짝 넘겼다가 -108deg에 멈춰
-// 쫙 펴지지 않고 세워 든 책처럼 입체감을 남긴다.
+// 표지가 세로로 서는 순간(-90deg, 타임라인 ~34%)을 지나면
+// 하드커버 색 안쪽 면이 나타난다
+@keyframes book-cover-inner-show {
+  0%,
+  30% {
+    opacity: 0;
+  }
+  40%,
+  100% {
+    opacity: 1;
+  }
+}
+
+// 앞표지 열림 (책등이 축). 180도를 살짝 지나쳤다가 -178deg에 안착해
+// 바닥에 탁 놓이는 하드커버의 무게감을 준다.
 @keyframes book-cover-open {
   70% {
-    transform: rotateY(-118deg);
+    transform: rotateY(-184deg);
   }
   to {
-    transform: rotateY(-108deg);
+    transform: rotateY(-178deg);
   }
 }
 
 // 속지 한 장이 넘어가는 동작. translateZ는 속지의 원래 겹침 위치 유지용.
-// 최종 각도를 장마다 다르게(-96deg ~ -42deg) 두어 부챗살처럼 벌어진
-// 채로 멈춘다 — 활짝 펴진 종이가 아니라 넘어가는 중의 입체감.
+// 깊은 장(--ri 작음)은 -178deg로 납작하게 눕고, 나중에 넘어가는 위쪽
+// 장일수록 덜 넘어가(-150deg까지) 제본선 근처에서 살짝 들려 있다 —
+// 두꺼운 책이 중앙쯤에서 방금 펼쳐진 모습.
 // 중간에 skewY·scaleX로 종이가 활처럼 휘었다가 펴지는 유연함을 흉내낸다.
 @keyframes book-leaf-flip {
   0% {
@@ -488,11 +543,11 @@ $pad-x: clamp(48px, 5vw, 88px);
   }
   45% {
     transform: translateZ(calc((var(--i) + 1) * -2px))
-      rotateY(calc((-96deg + var(--i) * 18deg) * 0.55)) skewY(-7deg)
+      rotateY(calc((-178deg + var(--ri) * 4deg) * 0.5)) skewY(-7deg)
       scaleX(0.86);
   }
   100% {
     transform: translateZ(calc((var(--i) + 1) * -2px))
-      rotateY(calc(-96deg + var(--i) * 18deg)) skewY(-2deg) scaleX(0.96);
+      rotateY(calc(-178deg + var(--ri) * 4deg)) skewY(-2deg) scaleX(0.98);
   }
 }

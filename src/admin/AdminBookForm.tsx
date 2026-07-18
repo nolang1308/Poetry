@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { usePoems } from '../hooks/usePoems'
 import { useBooks } from '../hooks/useBooks'
 import { addBook, updateBook, MAX_BOOK_POEMS } from '../data/booksRepo'
+import { buildPoemNumbers } from '../data/poemNumbers'
 import { fileToEditableUrl } from '../utils/image'
 import ImageCropper from '../components/ImageCropper'
 import { Check, Search } from '../components/icons'
@@ -44,6 +45,8 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
   const [fileName, setFileName] = useState('')
   const [cropSrc, setCropSrc] = useState<string | null>(null)
   const [query, setQuery] = useState('')
+  // 시 선택 목록의 등록순 방향 (false = 최신부터 내림차순, true = 오래된 것부터)
+  const [dateAsc, setDateAsc] = useState(false)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -85,10 +88,15 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
   const available = poems.filter((p) => !usedElsewhere.has(p.id))
   const hiddenCount = poems.length - available.length
 
+  // "시집번호-시번호" 번호표 (예: 1-3). 이미 시집에 담겨 저장된 시에만 붙는다.
+  const numbers = useMemo(() => buildPoemNumbers(books, poems), [books, poems])
+
   const q = normalize(query)
-  const filtered = q
+  const searched = q
     ? available.filter((p) => normalize(p.title).includes(q))
     : available
+  // 기본은 최신 등록이 앞(내림차순). 토글하면 오래된 등록부터(오름차순).
+  const filtered = dateAsc ? [...searched].reverse() : searched
 
   // ── 모바일: 사진첩처럼 드래그로 여러 편 선택 ──
   // 카드를 짚고 가로로 끌기 시작하면 선택 모드가 되어, 손가락이 지나간
@@ -373,9 +381,18 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
                 />
               </div>
 
-              <p className="admin-book-form__count">
-                {selectedIds.length}/{MAX_BOOK_POEMS}편 선택됨
-              </p>
+              <div className="admin-book-form__list-bar">
+                <p className="admin-book-form__count">
+                  {selectedIds.length}/{MAX_BOOK_POEMS}편 선택됨
+                </p>
+                <button
+                  type="button"
+                  className="admin-book-form__sort"
+                  onClick={() => setDateAsc((v) => !v)}
+                >
+                  등록순 {dateAsc ? '↑ 오래된 것부터' : '↓ 최신부터'}
+                </button>
+              </div>
 
               {loading ? (
                 <p className="admin-home__empty">시를 불러오는 중…</p>
@@ -434,7 +451,14 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
                         </button>
 
                         <div className="admin-card__info">
-                          <p className="admin-card__title">{poem.title}</p>
+                          <p className="admin-card__title">
+                            {numbers.has(poem.id) && (
+                              <span className="admin-book-form__seq">
+                                {numbers.get(poem.id)}.{' '}
+                              </span>
+                            )}
+                            {poem.title}
+                          </p>
                           <p className="admin-card__meta">
                             {poem.date} · 좋아요 {poem.likes}
                           </p>
