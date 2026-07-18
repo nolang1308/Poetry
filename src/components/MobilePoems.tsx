@@ -43,7 +43,8 @@ function MobilePoems({
   heading = '시',
   backTo = '/',
 }: MobilePoemsProps) {
-  const { query, setQuery, sort, setSort, results } = usePoemFilter(poems)
+  const { query, setQuery, sort, setSort, dateAsc, setDateAsc, results } =
+    usePoemFilter(poems)
   const [menuOpen, setMenuOpen] = useState(false)
   const [cols, setCols] = useState<ViewCols>(loadViewCols)
 
@@ -64,7 +65,7 @@ function MobilePoems({
   // 검색어·정렬이 바뀌면 다시 처음 10편부터
   useEffect(() => {
     setVisible(PAGE_SIZE)
-  }, [query, sort])
+  }, [query, sort, dateAsc])
 
   const shown = results.slice(0, visible)
   const hasMore = visible < results.length
@@ -91,7 +92,12 @@ function MobilePoems({
     if (animate) withViewTransition(() => setQuery(v))
     else setQuery(v)
   }
-  const onSort = (key: SortKey) => withViewTransition(() => setSort(key))
+  // 등록일순이 이미 켜진 상태에서 다시 누르면 오름/내림차순이 뒤집힌다
+  const onSort = (key: SortKey) =>
+    withViewTransition(() => {
+      if (key === 'date' && sort === 'date') setDateAsc((v) => !v)
+      else setSort(key)
+    })
 
   return (
     <div className="mobile-poems">
@@ -132,19 +138,24 @@ function MobilePoems({
 
         <div className="mobile-poems__filter-row">
           <div className="mobile-poems__chips">
-            {filterChips.map((chip) => (
-              <button
-                key={chip.key}
-                type="button"
-                className={
-                  'mobile-poems__chip' +
-                  (sort === chip.key ? ' mobile-poems__chip--active' : '')
-                }
-                onClick={() => onSort(chip.key)}
-              >
-                {chip.label}
-              </button>
-            ))}
+            {filterChips.map((chip) => {
+              const active = sort === chip.key
+              const isDate = chip.key === 'date'
+              return (
+                <button
+                  key={chip.key}
+                  type="button"
+                  className={
+                    'mobile-poems__chip' +
+                    (active ? ' mobile-poems__chip--active' : '')
+                  }
+                  onClick={() => onSort(chip.key)}
+                >
+                  {chip.label}
+                  {isDate && active && (dateAsc ? ' ↑' : ' ↓')}
+                </button>
+              )
+            })}
           </div>
 
           <div className="mobile-poems__view" role="group" aria-label="보기 방식">

@@ -39,7 +39,8 @@ function WebPoems({
   sub = '한 편의 시는 한 권의 책이 됩니다. 마음에 드는 표지를 골라 펼쳐 보세요.',
   navActive = 'poems',
 }: WebPoemsProps) {
-  const { query, setQuery, sort, setSort, results } = usePoemFilter(poems)
+  const { query, setQuery, sort, setSort, dateAsc, setDateAsc, results } =
+    usePoemFilter(poems)
 
   // 무한 스크롤: 처음엔 10편, 하단 센티널이 보일 때마다 10편씩 더 노출
   const [visible, setVisible] = useState(PAGE_SIZE)
@@ -48,7 +49,7 @@ function WebPoems({
   // 검색어·정렬이 바뀌면 다시 처음 10편부터
   useEffect(() => {
     setVisible(PAGE_SIZE)
-  }, [query, sort])
+  }, [query, sort, dateAsc])
 
   const shown = results.slice(0, visible)
   const hasMore = visible < results.length
@@ -77,7 +78,12 @@ function WebPoems({
     else setQuery(v)
   }
 
-  const onSort = (key: SortKey) => withViewTransition(() => setSort(key))
+  // 등록일순이 이미 켜진 상태에서 다시 누르면 오름/내림차순이 뒤집힌다
+  const onSort = (key: SortKey) =>
+    withViewTransition(() => {
+      if (key === 'date' && sort === 'date') setDateAsc((v) => !v)
+      else setSort(key)
+    })
 
   return (
     <div className="web-poems">
@@ -109,19 +115,28 @@ function WebPoems({
           </div>
           <div className="web-poems__filters">
             <SortIcon size={16} className="web-poems__sort-icon" />
-            {sortChips.map((chip) => (
-              <button
-                key={chip.key}
-                type="button"
-                className={
-                  'web-poems__chip' +
-                  (sort === chip.key ? ' web-poems__chip--active' : '')
-                }
-                onClick={() => onSort(chip.key)}
-              >
-                {chip.label}
-              </button>
-            ))}
+            {sortChips.map((chip) => {
+              const active = sort === chip.key
+              const isDate = chip.key === 'date'
+              return (
+                <button
+                  key={chip.key}
+                  type="button"
+                  className={
+                    'web-poems__chip' + (active ? ' web-poems__chip--active' : '')
+                  }
+                  onClick={() => onSort(chip.key)}
+                  title={
+                    isDate && active
+                      ? '다시 누르면 순서가 뒤집힙니다'
+                      : undefined
+                  }
+                >
+                  {chip.label}
+                  {isDate && active && (dateAsc ? ' ↑' : ' ↓')}
+                </button>
+              )
+            })}
           </div>
         </div>
 

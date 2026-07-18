@@ -93,6 +93,13 @@ $pad-x: clamp(48px, 5vw, 88px);
     gap: clamp(14px, 1.4vw, 20px);
   }
 
+  &__cta-buttons {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
   &__primary-button {
     display: inline-flex;
     align-items: center;
@@ -107,6 +114,20 @@ $pad-x: clamp(48px, 5vw, 88px);
     border-radius: 2px;
     text-decoration: none;
     cursor: pointer;
+
+    // 시집으로 보러가기: 외곽선 버전
+    &--outline {
+      color: $accent;
+      background-color: transparent;
+      border: 1.5px solid $accent;
+      padding: calc(clamp(17px, 1.6vw, 21px) - 1.5px)
+        calc(clamp(32px, 2.6vw, 40px) - 1.5px);
+
+      &:hover {
+        color: $surface;
+        background-color: $accent;
+      }
+    }
   }
 
   &__secondary-link {

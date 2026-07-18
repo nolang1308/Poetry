@@ -3,6 +3,8 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { usePoems } from '../hooks/usePoems'
 import { useBooks } from '../hooks/useBooks'
 import { addBook, updateBook, MAX_BOOK_POEMS } from '../data/booksRepo'
+import { fileToEditableUrl } from '../utils/image'
+import ImageCropper from '../components/ImageCropper'
 import { Check, Search } from '../components/icons'
 import type { Book } from '../data/booksRepo'
 import './AdminPoemForm.scss'
@@ -17,7 +19,7 @@ function AdminBookForm() {
   const { books, loading } = useBooks()
 
   if (!id) {
-    return <BookForm initial={{ name: '', poemIds: [] }} />
+    return <BookForm initial={{ name: '', poemIds: [], image: '' }} />
   }
 
   if (loading) {
@@ -37,9 +39,36 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
   const [name, setName] = useState(initial.name)
   // 선택한 순서를 그대로 시집의 시 순서로 쓴다
   const [selectedIds, setSelectedIds] = useState<string[]>(initial.poemIds)
+  const [image, setImage] = useState(initial.image ?? '')
+  const [fileName, setFileName] = useState('')
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // 같은 파일 다시 선택 가능하도록 초기화
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      setError('이미지 파일만 등록할 수 있습니다.')
+      return
+    }
+    try {
+      // 원본을 크롭 편집기로 열어 위치·확대를 맞춘 뒤 표지로 저장
+      const dataUrl = await fileToEditableUrl(file)
+      setCropSrc(dataUrl)
+      setFileName(file.name)
+      setError('')
+    } catch {
+      setError('이미지를 불러오지 못했습니다.')
+    }
+  }
+
+  const onCropConfirm = (dataUrl: string) => {
+    setImage(dataUrl)
+    setCropSrc(null)
+  }
 
   const q = normalize(query)
   const filtered = q
@@ -220,7 +249,7 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
     }
     setSaving(true)
     try {
-      const data = { name: name.trim(), poemIds: selectedIds }
+      const data = { name: name.trim(), poemIds: selectedIds, image }
       if (editing && id) await updateBook(id, data)
       else await addBook(data)
       navigate('/admin/home')
@@ -251,6 +280,55 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
                 placeholder="예: 계절의 결"
               />
             </label>
+
+            <div className="admin-form__field">
+              <span className="admin-form__label">표지 사진 (선택)</span>
+              <p className="admin-book-form__guide">
+                따로 정하지 않으면 시집에 담긴 첫 번째 시의 사진이 표지가 됩니다.
+              </p>
+              <div className="admin-form__cover-row">
+                <label className="admin-form__file">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="admin-form__file-input"
+                    onChange={onFile}
+                  />
+                  <span className="admin-form__file-btn">파일 선택</span>
+                  <span className="admin-form__file-name">
+                    {fileName || (image ? '등록된 사진' : '선택된 파일 없음')}
+                  </span>
+                </label>
+                {image && (
+                  <div className="admin-form__cover-preview">
+                    <img
+                      className="admin-form__cover-thumb"
+                      src={image}
+                      alt="표지 미리보기"
+                    />
+                    <div className="admin-book-form__cover-btns">
+                      <button
+                        type="button"
+                        className="admin-form__cover-edit"
+                        onClick={() => setCropSrc(image)}
+                      >
+                        위치 조정
+                      </button>
+                      <button
+                        type="button"
+                        className="admin-form__cover-edit admin-book-form__cover-remove"
+                        onClick={() => {
+                          setImage('')
+                          setFileName('')
+                        }}
+                      >
+                        표지 삭제
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
 
             <div className="admin-form__field">
               <span className="admin-form__label">시 선택</span>
@@ -362,6 +440,14 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
           </div>
         </form>
       </div>
+
+      {cropSrc && (
+        <ImageCropper
+          src={cropSrc}
+          onCancel={() => setCropSrc(null)}
+          onConfirm={onCropConfirm}
+        />
+      )}
     </div>
   )
 }

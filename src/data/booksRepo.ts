@@ -15,9 +15,11 @@ import { db } from '../firebase'
 export const MAX_BOOK_POEMS = 100
 
 // 시집: 관리자가 이름을 붙여 시들을 묶은 단위. poemIds는 선택한 순서 그대로.
+// image는 시집 표지 사진(선택). 없으면 목록에서 첫 번째 시의 사진을 쓴다.
 export interface Book {
   name: string
   poemIds: string[]
+  image?: string
 }
 
 // Firestore 문서(문서 id 포함)
@@ -32,6 +34,7 @@ function fromDoc(id: string, data: DocumentData): BookDoc {
     id,
     name: data.name ?? '',
     poemIds: Array.isArray(data.poemIds) ? data.poemIds : [],
+    image: data.image ?? '',
   }
 }
 
@@ -74,6 +77,7 @@ export async function addBook(data: Book) {
   await addDoc(booksCol, {
     name: data.name,
     poemIds: data.poemIds.slice(0, MAX_BOOK_POEMS),
+    image: data.image ?? '',
     sortKey: Date.now(),
   })
 }
@@ -82,6 +86,7 @@ export async function updateBook(id: string, data: Book) {
   await updateDoc(doc(db, 'books', id), {
     name: data.name,
     poemIds: data.poemIds.slice(0, MAX_BOOK_POEMS),
+    image: data.image ?? '',
   })
 }
 

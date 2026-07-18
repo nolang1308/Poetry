@@ -24,10 +24,19 @@ function WebHome({ home }: { home: HomeContent }) {
           <p className="web-home__intro">{home.intro}</p>
 
           <div className="web-home__cta">
-            <Link to="/books" className="web-home__primary-button">
-              <span>{home.ctaLabel}</span>
-              <ArrowRight size={18} />
-            </Link>
+            <div className="web-home__cta-buttons">
+              <Link to="/poems" className="web-home__primary-button">
+                <span>전체 시 보러가기</span>
+                <ArrowRight size={18} />
+              </Link>
+              <Link
+                to="/books"
+                className="web-home__primary-button web-home__primary-button--outline"
+              >
+                <span>시집으로 보러가기</span>
+                <ArrowRight size={18} />
+              </Link>
+            </div>
             <a href="#" className="web-home__secondary-link">
               {home.secondaryLabel}
             </a>

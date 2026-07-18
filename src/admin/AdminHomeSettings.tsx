@@ -124,7 +124,6 @@ function AdminHomeSettings() {
             {text('헤드라인 1', 'headline1')}
             {text('헤드라인 2', 'headline2')}
             {area('소개글', 'intro', 4)}
-            {text('버튼 문구 (모바일과 공용)', 'ctaLabel')}
             {text('보조 링크 문구', 'secondaryLabel')}
             {area('사진 위 시구', 'verseWeb', 2)}
           </section>

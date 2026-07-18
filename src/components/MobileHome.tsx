@@ -51,8 +51,15 @@ function MobileHome({ home }: { home: HomeContent }) {
       </div>
 
       <div className="mobile-home__button-wrap">
-        <Link to="/books" className="mobile-home__primary-button">
-          <span>{home.ctaLabel}</span>
+        <Link to="/poems" className="mobile-home__primary-button">
+          <span>전체 시 보러가기</span>
+          <ArrowRight size={18} />
+        </Link>
+        <Link
+          to="/books"
+          className="mobile-home__primary-button mobile-home__primary-button--outline"
+        >
+          <span>시집으로 보러가기</span>
           <ArrowRight size={18} />
         </Link>
       </div>

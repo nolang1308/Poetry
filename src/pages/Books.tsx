@@ -10,11 +10,11 @@ import type { BookDoc } from '../data/booksRepo'
 import type { PoemDoc } from '../data/poems'
 import './Books.scss'
 
-// 시집 카드: 표지는 시집의 첫 번째 시 사진, 없으면 詩 마크
+// 시집 카드: 표지는 관리자가 지정한 사진 → 없으면 첫 번째 시 사진 → 없으면 詩 마크
 function BookCard({ book, poemById }: { book: BookDoc; poemById: Map<string, PoemDoc> }) {
-  const cover = book.poemIds
-    .map((id) => poemById.get(id)?.image)
-    .find((img) => img)
+  const cover =
+    book.image ||
+    book.poemIds.map((id) => poemById.get(id)?.image).find((img) => img)
   // 삭제된 시는 편수에서 제외
   const count = book.poemIds.filter((id) => poemById.has(id)).length
 

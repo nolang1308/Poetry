@@ -7,6 +7,8 @@ export type SortKey = 'likes' | 'date' | 'title' | 'all'
 export function usePoemFilter<T extends Poem>(poems: T[], initialSort: SortKey = 'likes') {
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortKey>(initialSort)
+  // 등록일순의 방향 (false = 최신부터 내림차순, true = 오래된 것부터 오름차순)
+  const [dateAsc, setDateAsc] = useState(false)
 
   const results = useMemo(() => {
     // 띄어쓰기 무시: 검색어와 제목 모두 공백 제거 후 비교
@@ -20,14 +22,16 @@ export function usePoemFilter<T extends Poem>(poems: T[], initialSort: SortKey =
       case 'likes':
         return filtered.sort((a, b) => Number(b.likes) - Number(a.likes))
       case 'date':
-        return filtered.sort((a, b) => b.date.localeCompare(a.date))
+        return filtered.sort((a, b) =>
+          dateAsc ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date),
+        )
       case 'title':
         return filtered.sort((a, b) => a.title.localeCompare(b.title, 'ko'))
       case 'all':
       default:
         return filtered
     }
-  }, [poems, query, sort])
+  }, [poems, query, sort, dateAsc])
 
-  return { query, setQuery, sort, setSort, results }
+  return { query, setQuery, sort, setSort, dateAsc, setDateAsc, results }
 }
