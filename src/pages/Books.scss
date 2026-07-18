@@ -233,12 +233,12 @@ $pad-x: clamp(48px, 5vw, 88px);
     }
   }
 
-  // 뒤표지: 파스텔 톤 푸른 천 커버 느낌
+  // 뒤표지: 파스텔 톤 연두 천 커버 느낌
   &__back {
     position: absolute;
     inset: 0;
     border-radius: 2px 6px 6px 2px;
-    background: linear-gradient(150deg, #bed3e0 0%, #a3bdce 55%, #8fabbf 100%);
+    background: linear-gradient(150deg, #ddefbc 0%, #c6e29a 55%, #b0d47f 100%);
     transform: translateZ(calc(-1 * var(--book-depth)));
     box-shadow: 0 22px 34px -18px rgba(43, 40, 35, 0.4);
   }
@@ -344,7 +344,7 @@ $pad-x: clamp(48px, 5vw, 88px);
     color: $surface;
   }
 
-  // 책등: 파스텔 톤 푸른 천을 두른 하드커버 띠. 은은한 음영·접힘
+  // 책등: 파스텔 톤 연두 천을 두른 하드커버 띠. 은은한 음영·접힘
   // 하이라이트를 얹어 천의 결을 표현한다
   &__spine {
     position: absolute;
@@ -360,7 +360,7 @@ $pad-x: clamp(48px, 5vw, 88px);
         rgba(255, 255, 255, 0.18) 55%,
         rgba(0, 0, 0, 0.1) 100%
       ),
-      linear-gradient(160deg, #bad0de 0%, #a3bdce 60%, #90acc0 100%);
+      linear-gradient(160deg, #d9ecb6 0%, #c6e29a 60%, #b2d581 100%);
   }
 
   // ── 책 펼침 모션 (모바일 터치 시) ──
