@@ -16,6 +16,13 @@
     color: $ink-soft;
   }
 
+  // 다른 시집에 담겨 목록에서 빠진 시 안내
+  &__guide--hidden {
+    margin-top: 4px;
+    font-size: 13px;
+    color: $ink-faint;
+  }
+
   // 드래그 선택 팁: 터치 기기에서만 노출
   &__guide-tip {
     display: none;

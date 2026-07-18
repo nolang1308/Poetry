@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { usePoems } from '../hooks/usePoems'
 import { useBooks } from '../hooks/useBooks'
@@ -36,6 +36,7 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
   const navigate = useNavigate()
   const editing = Boolean(id)
   const { poems, loading } = usePoems()
+  const { books } = useBooks()
   const [name, setName] = useState(initial.name)
   // 선택한 순서를 그대로 시집의 시 순서로 쓴다
   const [selectedIds, setSelectedIds] = useState<string[]>(initial.poemIds)
@@ -70,10 +71,24 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
     setCropSrc(null)
   }
 
+  // 한 편의 시는 하나의 시집에만: 다른 시집에 이미 담긴 시는 목록에서 제외.
+  // (수정 중인 시집 자신에 담긴 시는 선택 해제가 가능해야 하므로 남긴다)
+  const usedElsewhere = useMemo(() => {
+    const used = new Set<string>()
+    books.forEach((b) => {
+      if (b.id === id) return
+      b.poemIds.forEach((pid) => used.add(pid))
+    })
+    return used
+  }, [books, id])
+
+  const available = poems.filter((p) => !usedElsewhere.has(p.id))
+  const hiddenCount = poems.length - available.length
+
   const q = normalize(query)
   const filtered = q
-    ? poems.filter((p) => normalize(p.title).includes(q))
-    : poems
+    ? available.filter((p) => normalize(p.title).includes(q))
+    : available
 
   // ── 모바일: 사진첩처럼 드래그로 여러 편 선택 ──
   // 카드를 짚고 가로로 끌기 시작하면 선택 모드가 되어, 손가락이 지나간
@@ -340,6 +355,12 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
                   선택할 수 있어요.
                 </span>
               </p>
+              {hiddenCount > 0 && (
+                <p className="admin-book-form__guide admin-book-form__guide--hidden">
+                  이미 다른 시집에 담긴 {hiddenCount}편은 목록에 표시되지
+                  않습니다.
+                </p>
+              )}
 
               <div className="admin-home__search admin-book-form__search">
                 <Search size={18} className="admin-home__search-icon" />
@@ -362,7 +383,9 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
                 <p className="admin-home__empty">
                   {poems.length === 0
                     ? '등록된 시가 없습니다. 먼저 시를 등록해 주세요.'
-                    : `'${query}'에 대한 검색 결과가 없습니다.`}
+                    : available.length === 0
+                      ? '모든 시가 이미 다른 시집에 담겨 있습니다.'
+                      : `'${query}'에 대한 검색 결과가 없습니다.`}
                 </p>
               ) : (
                 <div
