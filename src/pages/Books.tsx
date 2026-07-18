@@ -62,9 +62,14 @@ function BookCard({ book, poemById }: { book: BookDoc; poemById: Map<string, Poe
       })
     }
     setOpening(true)
-    // 모션이 끝나면 크로스페이드(View Transition)로 부드럽게 상세로 전환
+    // 모션이 끝나면 책 전용 긴 크로스페이드(View Transition)로 상세 전환.
+    // html에 임시 클래스를 붙여 이 전환에서만 느린 페이드 스타일을 쓴다.
     window.setTimeout(() => {
+      document.documentElement.classList.add('vt-book-open')
       withViewTransition(() => navigate(`/books/${book.id}`))
+      window.setTimeout(() => {
+        document.documentElement.classList.remove('vt-book-open')
+      }, 800)
     }, OPEN_DURATION)
   }
 
