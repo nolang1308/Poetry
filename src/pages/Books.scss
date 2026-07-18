@@ -199,59 +199,238 @@ $pad-x: clamp(48px, 5vw, 88px);
   }
 }
 
-// ── 시집 카드 ──
+// ── 시집 카드 (3D 책 모양) ──
 .book-card {
+  --book-depth: 26px; // 책 두께
+  --spine-w: 28px; // 책등 주름 폭 (표지 콘텐츠는 이 안쪽부터)
+
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   text-decoration: none;
+  perspective: 1000px; // 카드마다 개별 소실점
 
-  &__cover {
+  .mobile-books & {
+    --book-depth: 18px; // 좁은 카드에선 얇게
+    --spine-w: 20px;
+  }
+
+  // 표지·책배·뒤표지를 하나로 묶어 살짝 돌려 두면 책 두께가 보인다
+  &__book {
     position: relative;
     width: 100%;
     aspect-ratio: 4 / 5;
-    border-radius: 3px;
+    transform-style: preserve-3d;
+    transform: rotateY(-14deg);
+    transition: transform 0.35s ease;
+  }
+
+  // 호버 모션은 실제 호버가 가능한 기기에서만 (터치에서 :hover가 걸려
+  // 펼침 모션을 덮어쓰지 않도록)
+  @media (hover: hover) {
+    &:hover &__book {
+      transform: rotateY(-27deg) translateY(-6px);
+    }
+  }
+
+  // 뒤표지: 팔레트의 초록을 살린 깊은 천 커버 느낌
+  &__back {
+    position: absolute;
+    inset: 0;
+    border-radius: 2px 6px 6px 2px;
+    background: linear-gradient(150deg, #4a5f53 0%, #35473d 55%, #2c3b33 100%);
+    transform: translateZ(calc(-1 * var(--book-depth)));
+    box-shadow: 0 22px 34px -18px rgba(43, 40, 35, 0.4);
+  }
+
+  // 책배: 페이지 단면. 종이 줄무늬 위에 양 끝을 은은하게 어둡게 눌러
+  // 표지 사이에 끼인 깊이감을 준다
+  &__pages {
+    position: absolute;
+    top: 1.5%;
+    bottom: 1.5%;
+    right: 0;
+    width: var(--book-depth);
+    transform-origin: right center;
+    transform: rotateY(-90deg);
+    background:
+      linear-gradient(
+        to right,
+        rgba(43, 40, 35, 0.16),
+        rgba(43, 40, 35, 0) 30%,
+        rgba(43, 40, 35, 0) 70%,
+        rgba(43, 40, 35, 0.2)
+      ),
+      repeating-linear-gradient(
+        to right,
+        #f6f1e3 0,
+        #f6f1e3 2px,
+        #e8e0cc 2px,
+        #e8e0cc 3px
+      );
+  }
+
+  // 앞표지: 좌상단 제목 · 아래쪽 사진의 시집 표지 레이아웃.
+  // 글(제목)만 책등 주름을 피하고, 사진은 왼쪽 끝까지 붙는다.
+  &__cover {
+    position: absolute;
+    inset: 0;
+    border-radius: 2px 6px 6px 2px;
     overflow: hidden;
-    background-color: $accent-soft;
-    box-shadow: 0 12px 26px -10px rgba(43, 40, 35, 0.3);
+    background-color: $surface;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8% 9% 0 calc(var(--spine-w) + 6px);
+    box-shadow: 4px 8px 16px -10px rgba(43, 40, 35, 0.28);
+  }
+
+  &__cover-title {
+    font-family: $font-serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: $ink;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+
+    .mobile-books & {
+      font-size: 15px;
+    }
+  }
+
+  // 제목 아래 짧은 포인트 선
+  &__cover-rule {
+    width: 24px;
+    height: 2px;
+    margin-top: 10px;
+    background-color: $accent;
+  }
+
+  // 아래쪽 사진: 표지 오른쪽 끝·바닥까지 붙이고, 원본 비율 그대로 보여준다
+  &__cover-photo {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 65%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  &:hover &__cover {
-    transform: translateY(-4px);
-    box-shadow: 0 18px 32px -12px rgba(43, 40, 35, 0.35);
   }
 
   &__cover-img {
     position: absolute;
-    inset: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain; // 잘리지 않게 원본 비율 유지
+    object-position: calc(100% - 10px) bottom; // 오른쪽에서 살짝 안쪽으로
+  }
+
+  // 사진이 없을 때만 보이는 詩 마크 자리
+  &__cover-photo--empty {
+    background-color: $accent-soft;
   }
 
   &__cover-mark {
     font-family: $font-serif;
-    font-size: 44px;
+    font-size: 34px;
     font-weight: 700;
     color: $surface;
   }
 
-  // 책등 느낌의 왼쪽 띠
+  // 책등: 짙은 초록 천을 두른 하드커버 띠. 은은한 음영·접힘 하이라이트를
+  // 얹어 천의 결을 표현한다
   &__spine {
     position: absolute;
     top: 0;
     bottom: 0;
     left: 0;
-    width: 10px;
-    background: linear-gradient(
-      to right,
-      rgba(43, 40, 35, 0.35),
-      rgba(43, 40, 35, 0)
-    );
+    width: var(--spine-w);
+    background:
+      linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0.2) 0,
+        rgba(0, 0, 0, 0) 35%,
+        rgba(255, 255, 255, 0.1) 55%,
+        rgba(0, 0, 0, 0.14) 100%
+      ),
+      linear-gradient(160deg, #40584b 0%, #35473d 60%, #2c3b33 100%);
+  }
+
+  // ── 책 펼침 모션 (모바일 터치 시) ──
+
+  // 속지: 평소엔 표지 바로 뒤에 겹쳐 숨어 있다가 펼칠 때 한 장씩 넘어간다
+  &__leaf {
+    position: absolute;
+    inset: 1.5% 3px 1.5% 2px;
+    border-radius: 0 4px 4px 0;
+    background:
+      linear-gradient(
+        to right,
+        rgba(43, 40, 35, 0.12),
+        rgba(43, 40, 35, 0) 18%
+      ),
+      #fbf7ec;
+    transform-origin: left center;
+    transform: translateZ(calc((var(--i) + 1) * -2px));
+  }
+
+  // 속지에 인쇄된 시 사진: 종이 여백을 남긴 도판 느낌.
+  // backface-visibility로 90도를 넘겨 뒤집힌 페이지는 뒷면(맨 종이)만 보인다.
+  &__leaf-img {
+    position: absolute;
+    top: 7%;
+    left: 9%;
+    width: 82%;
+    height: 86%;
+    object-fit: cover;
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(43, 40, 35, 0.18);
+    backface-visibility: hidden;
+  }
+
+  // 펼치는 동안 다른 카드들 위로 올라오고, 뒤 배경을 살짝 어둡게 깐다
+  &--opening {
+    position: relative;
+    z-index: 60;
+  }
+
+  // 배경 딤. 카드에 perspective가 있어 fixed가 카드 기준이 되므로
+  // 화면을 넉넉히 덮도록 큰 음수 inset을 쓴다.
+  &--opening::before {
+    content: '';
+    position: fixed;
+    inset: -150vh -150vw;
+    background: rgba(43, 40, 35, 0.45);
+    animation: book-backdrop-in 0.35s ease forwards;
+  }
+
+  // 1단계(0~0.45s): 화면 정중앙으로 이동하며 키운다. 배율은 펼친 표지가
+  // 화면 밖으로 나가지 않도록 JS에서 계산해 --open-scale로 내려온다.
+  // rotateX(18deg): 독서대에 올려 살짝 뒤로 눕힌 각도.
+  &--opening &__book,
+  &--opening:hover &__book {
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) rotateX(18deg)
+      rotateY(8deg) scale(var(--open-scale, 1.6));
+    transition-duration: 0.45s;
+    transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  // 2단계(0.35s~): 앞표지가 책등을 축으로 열린다 (완전히 펴지 않고 세워 둠)
+  &--opening &__cover {
+    transform-origin: left center;
+    animation: book-cover-open 0.5s ease-in-out 0.35s forwards;
+  }
+
+  // 3단계(0.45s~): 속지들이 시간차를 두고 촤라락 넘어가며 부챗살처럼 펼쳐진다
+  &--opening &__leaf {
+    animation: book-leaf-flip 0.5s cubic-bezier(0.45, 0.05, 0.35, 1) forwards;
+    animation-delay: calc(0.45s + var(--i) * 0.08s);
   }
 
   &__info {
@@ -273,5 +452,46 @@ $pad-x: clamp(48px, 5vw, 88px);
     font-family: $font-body;
     font-size: 13px;
     color: $ink-faint;
+  }
+}
+
+// 배경 딤 페이드 인
+@keyframes book-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// 앞표지 열림 (책등이 축). 살짝 넘겼다가 -108deg에 멈춰
+// 쫙 펴지지 않고 세워 든 책처럼 입체감을 남긴다.
+@keyframes book-cover-open {
+  70% {
+    transform: rotateY(-118deg);
+  }
+  to {
+    transform: rotateY(-108deg);
+  }
+}
+
+// 속지 한 장이 넘어가는 동작. translateZ는 속지의 원래 겹침 위치 유지용.
+// 최종 각도를 장마다 다르게(-96deg ~ -42deg) 두어 부챗살처럼 벌어진
+// 채로 멈춘다 — 활짝 펴진 종이가 아니라 넘어가는 중의 입체감.
+// 중간에 skewY·scaleX로 종이가 활처럼 휘었다가 펴지는 유연함을 흉내낸다.
+@keyframes book-leaf-flip {
+  0% {
+    transform: translateZ(calc((var(--i) + 1) * -2px)) rotateY(0deg) skewY(0deg)
+      scaleX(1);
+  }
+  45% {
+    transform: translateZ(calc((var(--i) + 1) * -2px))
+      rotateY(calc((-96deg + var(--i) * 18deg) * 0.55)) skewY(-7deg)
+      scaleX(0.86);
+  }
+  100% {
+    transform: translateZ(calc((var(--i) + 1) * -2px))
+      rotateY(calc(-96deg + var(--i) * 18deg)) skewY(-2deg) scaleX(0.96);
   }
 }
