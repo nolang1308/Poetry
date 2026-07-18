@@ -9,6 +9,7 @@ import { isLiked, setLikedLocal } from '../utils/likes'
 import { copyText } from '../utils/clipboard'
 import { useToast } from '../hooks/useToast'
 import Toast from './Toast'
+import PoemComments from './PoemComments'
 import './WebPoemDetail.scss'
 
 function WebPoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: boolean }) {
@@ -146,6 +147,8 @@ function WebPoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: b
             </div>
           </div>
         </section>
+
+        {!preview && <PoemComments poemId={poem.id} />}
 
         {!preview && (
           <nav className="web-poem__poem-nav">

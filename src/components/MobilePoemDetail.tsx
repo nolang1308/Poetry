@@ -7,6 +7,7 @@ import { isLiked, setLikedLocal } from '../utils/likes'
 import { copyText } from '../utils/clipboard'
 import { useToast } from '../hooks/useToast'
 import Toast from './Toast'
+import PoemComments from './PoemComments'
 import './MobilePoemDetail.scss'
 
 function MobilePoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: boolean }) {
@@ -130,6 +131,8 @@ function MobilePoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?
           </div>
           <p className="mobile-poem__note-body">{note}</p>
         </div>
+
+        {!preview && <PoemComments poemId={poem.id} />}
 
         {!preview && (
           <>

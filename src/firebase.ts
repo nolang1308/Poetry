@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
-import { getAuth } from 'firebase/auth'
+import { getAuth, signInAnonymously } from 'firebase/auth'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBwlIuW2PqH_MZ7xm-5dNOhMIQhkjQ9fqA',
@@ -26,3 +26,11 @@ export const ADMIN_EMAILS = [
 export const app = initializeApp(firebaseConfig)
 export const db = getFirestore(app)
 export const auth = getAuth(app)
+
+// 게스트 식별용 익명 로그인. 댓글 작성 등 uid가 필요한 순간에만 호출한다.
+// 이미 로그인돼 있으면(관리자 포함) 그 uid를 그대로 쓴다.
+export async function ensureSignedIn(): Promise<string> {
+  if (auth.currentUser) return auth.currentUser.uid
+  const cred = await signInAnonymously(auth)
+  return cred.user.uid
+}

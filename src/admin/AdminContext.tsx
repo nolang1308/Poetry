@@ -5,7 +5,7 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
-import { auth, phoneToEmail } from '../firebase'
+import { auth, phoneToEmail, ADMIN_EMAILS } from '../firebase'
 
 interface AdminContextValue {
   authed: boolean
@@ -35,8 +35,12 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     await signOut(auth)
   }
 
+  // 익명(게스트) 로그인 사용자는 관리자가 아니다 — 반드시 관리자 이메일로 판정
+  const authed =
+    !!user && !user.isAnonymous && ADMIN_EMAILS.includes(user.email ?? '')
+
   return (
-    <AdminContext.Provider value={{ authed: !!user, authLoading, login, logout }}>
+    <AdminContext.Provider value={{ authed, authLoading, login, logout }}>
       {children}
     </AdminContext.Provider>
   )

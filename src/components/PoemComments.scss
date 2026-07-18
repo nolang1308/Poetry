@@ -1,0 +1,234 @@
+@use '../styles/variables' as *;
+
+// 시 상세 하단 게스트 댓글 (웹/모바일 공용)
+.poem-comments {
+  width: 100%;
+  margin-top: 56px;
+
+  // 헤딩 (시인의 노트 헤더와 같은 결)
+  &__heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__count {
+    font-family: $font-body;
+    font-size: 14px;
+    font-weight: 700;
+    color: $accent;
+  }
+
+  &__head-rule {
+    flex: 1;
+    height: 1px;
+    background-color: $line;
+  }
+
+  // 작성 폼
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 18px;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 8px;
+  }
+
+  &__nickname {
+    width: min(220px, 100%);
+    padding: 10px 12px;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink;
+    background-color: $bg;
+    border: 1px solid $line;
+    border-radius: 4px;
+    outline: none;
+
+    &::placeholder {
+      color: $ink-faint;
+    }
+
+    &:focus {
+      border-color: $accent;
+    }
+  }
+
+  &__input {
+    width: 100%;
+    min-height: 72px;
+    padding: 10px 12px;
+    font-family: $font-body;
+    font-size: 15px;
+    line-height: 1.7;
+    color: $ink;
+    background-color: $bg;
+    border: 1px solid $line;
+    border-radius: 4px;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+
+    &::placeholder {
+      color: $ink-faint;
+    }
+
+    &:focus {
+      border-color: $accent;
+    }
+  }
+
+  &__form-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  &__hint {
+    font-family: $font-body;
+    font-size: 12px;
+    color: $ink-faint;
+  }
+
+  &__error {
+    font-family: $font-body;
+    font-size: 13px;
+    color: #b5443a;
+  }
+
+  &__submit {
+    padding: 10px 22px;
+    font-family: $font-body;
+    font-size: 14px;
+    font-weight: 700;
+    color: $surface;
+    background-color: $accent;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #354d43;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  &__empty {
+    margin: 32px 0 0;
+    text-align: center;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-faint;
+  }
+
+  // 댓글 목록
+  &__list {
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__item {
+    padding: 18px 4px;
+    border-bottom: 1px solid $line;
+  }
+
+  &__item-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  &__item-name {
+    font-family: $font-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__item-time {
+    font-family: $font-body;
+    font-size: 12px;
+    color: $ink-faint;
+  }
+
+  &__item-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  &__item-btn {
+    font-family: $font-body;
+    font-size: 12px;
+    color: $ink-soft;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+
+    &:hover {
+      color: $ink;
+    }
+
+    &--danger {
+      color: #b5443a;
+
+      &:hover {
+        color: #b5443a;
+      }
+    }
+
+    &--save {
+      color: $accent;
+      font-weight: 700;
+    }
+  }
+
+  &__item-body {
+    margin: 10px 0 0;
+    font-family: $font-body;
+    font-size: 15px;
+    line-height: 1.8;
+    color: $ink-soft;
+    white-space: pre-line;
+    word-break: break-word;
+  }
+
+  &__edit {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  &__edit-btns {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+  }
+
+  @media (max-width: $breakpoint-mobile) {
+    margin-top: 40px;
+
+    &__form {
+      padding: 14px;
+    }
+  }
+}
