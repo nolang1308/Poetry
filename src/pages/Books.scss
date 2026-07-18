@@ -238,7 +238,7 @@ $pad-x: clamp(48px, 5vw, 88px);
   &__back {
     position: absolute;
     inset: 0;
-    border: 1px solid rgba(20, 18, 14, 0.55);
+    border: 1.5px solid rgba(20, 18, 14, 0.55);
     border-radius: 2px 6px 6px 2px;
     background: linear-gradient(150deg, #ddefbc 0%, #c6e29a 55%, #b0d47f 100%);
     transform: translateZ(calc(-1 * var(--book-depth)));
@@ -256,8 +256,8 @@ $pad-x: clamp(48px, 5vw, 88px);
     transform-origin: right center;
     transform: rotateY(-90deg);
     // 위아래로 표지 사이에 끼인 경계선
-    border-top: 1px solid rgba(20, 18, 14, 0.4);
-    border-bottom: 1px solid rgba(20, 18, 14, 0.4);
+    border-top: 1.5px solid rgba(20, 18, 14, 0.45);
+    border-bottom: 1.5px solid rgba(20, 18, 14, 0.45);
     background:
       linear-gradient(
         to right,
@@ -280,7 +280,7 @@ $pad-x: clamp(48px, 5vw, 88px);
   &__cover {
     position: absolute;
     inset: 0;
-    border: 1px solid rgba(20, 18, 14, 0.5); // 커버 전체의 윤곽
+    border: 1.5px solid rgba(20, 18, 14, 0.55); // 커버 전체의 윤곽
     border-radius: 2px 6px 6px 2px;
     overflow: hidden;
     background-color: #f8f2df; // 연한 아이보리 커버지 (왼쪽 끝까지 한 장)
