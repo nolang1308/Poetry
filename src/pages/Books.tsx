@@ -164,6 +164,9 @@ function Books() {
   const loading = booksLoading || poemsLoading
 
   const poemById = new Map(poems.map((p) => [p.id, p]))
+  // 먼저 만든 시집(1번)이 맨 앞에 오도록 등록순 오름차순으로 표시
+  // (books는 최신순이므로 뒤집는다)
+  const orderedBooks = [...books].reverse()
 
   const grid = loading ? (
     <p className="books__empty">시집을 불러오는 중…</p>
@@ -180,7 +183,7 @@ function Books() {
     </div>
   ) : (
     <div className="books__grid">
-      {books.map((book) => (
+      {orderedBooks.map((book) => (
         <BookCard key={book.id} book={book} poemById={poemById} />
       ))}
     </div>
