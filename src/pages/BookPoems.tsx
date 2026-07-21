@@ -32,6 +32,7 @@ function BookPoems() {
         navActive="books"
         initialSort="all"
         numbers={numbers}
+        showUnreadFilter
       />
       <MobilePoems
         poems={bookPoems}
@@ -40,6 +41,7 @@ function BookPoems() {
         backTo="/books"
         initialSort="all"
         numbers={numbers}
+        showUnreadFilter
       />
     </>
   )

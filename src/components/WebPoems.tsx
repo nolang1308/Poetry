@@ -35,7 +35,7 @@ interface WebPoemsProps {
   initialSort?: SortKey
   // 시 id → "시집번호-시번호" 번호표
   numbers?: Map<string, string>
-  // 전체 시 페이지에서만 "안 읽은 시만" 버튼을 노출한다
+  // "안 읽은 시만" 필터 버튼을 노출할지 (전체 시 · 시집 상세에서 사용)
   showUnreadFilter?: boolean
 }
 
