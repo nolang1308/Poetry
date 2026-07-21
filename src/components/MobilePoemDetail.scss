@@ -177,6 +177,28 @@
     color: $accent;
   }
 
+  // 노트 헤더 오른쪽 끝의 작은 좋아요
+  &__note-like {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+    padding: 4px 10px;
+    font-family: $font-body;
+    font-size: 12px;
+    color: $ink-soft;
+    background: none;
+    border: 1px solid $line;
+    border-radius: 999px;
+    cursor: pointer;
+
+    &--liked {
+      color: $accent;
+      border-color: $accent-soft;
+      background-color: rgba(63, 90, 78, 0.06);
+    }
+  }
+
   &__poet-row {
     display: flex;
     align-items: center;
@@ -214,6 +236,46 @@
     font-family: $font-body;
     font-size: 12px;
     color: $ink-faint;
+  }
+
+  // 시 본문 좋아요 (댓글 바로 위)
+  &__like-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding-top: 36px;
+  }
+
+  &__like-label {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: 14px;
+    color: $ink-faint;
+  }
+
+  &__like-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 24px;
+    font-family: $font-body;
+    font-size: 15px;
+    color: $ink-soft;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 999px;
+    cursor: pointer;
+
+    &--liked {
+      color: $accent;
+      border-color: $accent-soft;
+      background-color: rgba(63, 90, 78, 0.07);
+    }
+  }
+
+  &__like-count {
+    font-weight: 700;
   }
 
   &__note-body {

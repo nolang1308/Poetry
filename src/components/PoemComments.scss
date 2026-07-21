@@ -89,11 +89,24 @@
     }
   }
 
+  // 답글 작성 폼: 원 댓글 아래에 한 단 들어가 붙는다
+  &__form--reply {
+    margin-top: 14px;
+    margin-left: 18px;
+    padding: 14px;
+  }
+
   &__form-foot {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+  }
+
+  &__form-btns {
+    display: flex;
+    align-items: center;
+    gap: 14px;
   }
 
   &__hint {
@@ -211,6 +224,31 @@
     word-break: break-word;
   }
 
+  // 원 댓글이 삭제되고 답글만 남은 자리
+  &__removed {
+    margin: 0;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-faint;
+    font-style: italic;
+  }
+
+  // 답글 목록: 왼쪽 세로선으로 원 댓글에 딸린 것임을 표시
+  &__replies {
+    margin: 14px 0 0;
+    padding: 0 0 0 16px;
+    list-style: none;
+    border-left: 2px solid $line;
+  }
+
+  &__reply {
+    padding: 10px 0;
+
+    & + & {
+      border-top: 1px solid $line;
+    }
+  }
+
   &__edit {
     display: flex;
     flex-direction: column;
@@ -229,6 +267,15 @@
 
     &__form {
       padding: 14px;
+    }
+
+    // 좁은 화면에서는 들여쓰기를 줄여 본문 폭을 확보
+    &__form--reply {
+      margin-left: 10px;
+    }
+
+    &__replies {
+      padding-left: 12px;
     }
   }
 }

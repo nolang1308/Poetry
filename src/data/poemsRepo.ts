@@ -26,6 +26,8 @@ function fromDoc(id: string, data: DocumentData): PoemDoc {
     note: data.note ?? '',
     date: data.date ?? '',
     likes: String(data.likes ?? 0),
+    // 노트 좋아요 도입 이전 문서에는 필드가 없다 → 0으로 본다
+    noteLikes: String(data.noteLikes ?? 0),
     image: data.image ?? '',
   }
 }
@@ -75,6 +77,7 @@ export async function addPoem(data: Poem) {
     note: data.note ?? '',
     date: data.date,
     likes: Number(data.likes) || 0,
+    noteLikes: 0,
     image: data.image ?? '',
     sortKey: Date.now(),
   })
@@ -95,9 +98,17 @@ export async function deletePoems(ids: string[]) {
   await Promise.all(ids.map((id) => deleteDoc(doc(db, 'poems', id))))
 }
 
-// 좋아요 ±1 (보안 규칙상 likes 필드만 변경 허용)
+// 시 본문 좋아요 ±1 (보안 규칙상 likes 필드만 단독 변경 허용)
 export async function likePoem(id: string, liked: boolean) {
   await updateDoc(doc(db, 'poems', id), { likes: increment(liked ? 1 : -1) })
+}
+
+// 시인의 노트 좋아요 ±1 (본문 좋아요와 별개로 집계).
+// 필드가 없는 기존 문서에서도 increment가 0부터 시작하므로 그대로 동작한다.
+export async function likeNote(id: string, liked: boolean) {
+  await updateDoc(doc(db, 'poems', id), {
+    noteLikes: increment(liked ? 1 : -1),
+  })
 }
 
 // 컬렉션이 비어 있으면 기존 샘플 시들로 시드 (앱 최초 실행 시 1회)

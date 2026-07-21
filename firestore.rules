@@ -15,20 +15,24 @@ service cloud.firestore {
         return request.auth != null && isAdminEmail(request.auth.token.email);
       }
 
-      // 좋아요: likes 필드만 ±1 변경 허용 (누구나)
-      function onlyLikesDelta() {
-        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes'])
-          && request.resource.data.likes is int
+      // 좋아요: 지정한 카운터 필드 하나만 ±1 변경 허용 (누구나).
+      // get(field, 0)을 쓰므로 아직 필드가 없는 기존 문서에서도 동작한다.
+      function onlyLikeDelta(field) {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly([field])
+          && request.resource.data[field] is int
           && (
-            request.resource.data.likes == resource.data.likes + 1 ||
-            request.resource.data.likes == resource.data.likes - 1
+            request.resource.data[field] == resource.data.get(field, 0) + 1 ||
+            request.resource.data[field] == resource.data.get(field, 0) - 1
           );
       }
 
       allow read: if true;
       allow create: if isAdmin();
       allow delete: if isAdmin();
-      allow update: if isAdmin() || onlyLikesDelta();
+      // likes = 시 본문 좋아요, noteLikes = 시인의 노트 좋아요 (각각 따로 집계)
+      allow update: if isAdmin()
+        || onlyLikeDelta('likes')
+        || onlyLikeDelta('noteLikes');
     }
 
     // 시집(시 묶음): 읽기는 누구나, 만들기/수정/삭제는 관리자만
@@ -43,9 +47,18 @@ service cloud.firestore {
     match /comments/{commentId} {
       allow read: if true;
 
+      // parentId는 답글일 때만 붙는 선택 필드 — 값이 있으면 원 댓글의 문서 id.
+      // (없어도 통과시켜야 규칙을 먼저 배포해도 기존 앱이 깨지지 않는다)
+      function validParent() {
+        return !('parentId' in request.resource.data)
+          || (request.resource.data.parentId is string
+            && request.resource.data.parentId.size() <= 64);
+      }
+
       allow create: if request.auth != null
         && request.resource.data.keys().hasOnly(
-          ['poemId', 'nickname', 'content', 'authorUid', 'createdAt'])
+          ['poemId', 'nickname', 'content', 'authorUid', 'createdAt', 'parentId'])
+        && validParent()
         && request.resource.data.authorUid == request.auth.uid
         && request.resource.data.poemId is string
         && request.resource.data.poemId.size() > 0

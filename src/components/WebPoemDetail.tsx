@@ -1,13 +1,11 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import WebNav from './WebNav'
 import ArrowRight from './ArrowRight'
-import { ArrowLeft, Heart, Bookmark, Share, PenLine } from './icons'
+import { ArrowLeft, Heart, Share, PenLine } from './icons'
 import { poemContent, parseStanzas, isRichHtml, type PoemContext } from '../data/poems'
-import { likePoem } from '../data/poemsRepo'
-import { isLiked, setLikedLocal } from '../utils/likes'
 import { copyText } from '../utils/clipboard'
 import { useToast } from '../hooks/useToast'
+import { useLike } from '../hooks/useLike'
 import Toast from './Toast'
 import PoemComments from './PoemComments'
 import './WebPoemDetail.scss'
@@ -26,19 +24,9 @@ function WebPoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: b
     toast.show(ok ? '링크가 복사되었습니다' : '복사에 실패했습니다')
   }
 
-  const [liked, setLiked] = useState(() => isLiked(poem.id))
-  useEffect(() => setLiked(isLiked(poem.id)), [poem.id])
-
-  const onLike = () => {
-    if (preview) return // 미리보기에서는 동작하지 않음
-    const next = !liked
-    setLiked(next)
-    setLikedLocal(poem.id, next)
-    likePoem(poem.id, next).catch(() => {
-      setLiked(!next)
-      setLikedLocal(poem.id, !next)
-    })
-  }
+  // 시 본문 좋아요(댓글 위)와 시인의 노트 좋아요(노트 헤더)는 따로 집계된다
+  const poemLike = useLike(poem.id, 'poem', preview)
+  const noteLike = useLike(poem.id, 'note', preview)
 
   return (
     <div className="web-poem">
@@ -55,22 +43,6 @@ function WebPoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: b
             </Link>
           )}
           <div className="web-poem__actions">
-            <button
-              type="button"
-              className={
-                'web-poem__action' +
-                (liked ? ' web-poem__action--liked' : '')
-              }
-              onClick={onLike}
-              aria-pressed={liked}
-            >
-              <Heart size={17} filled={liked} className="web-poem__action-icon" />
-              {poem.likes}
-            </button>
-            <span className="web-poem__action">
-              <Bookmark size={17} className="web-poem__action-icon" />
-              저장
-            </span>
             <button
               type="button"
               className="web-poem__action"
@@ -131,6 +103,20 @@ function WebPoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: b
             <PenLine size={20} className="web-poem__note-pen" />
             <h2 className="web-poem__note-heading">시인의 노트</h2>
             <span className="web-poem__note-head-rule" />
+            {/* 노트에만 누르는 좋아요 (시 본문 좋아요와 별개로 집계) */}
+            <button
+              type="button"
+              className={
+                'web-poem__note-like' +
+                (noteLike.liked ? ' web-poem__note-like--liked' : '')
+              }
+              onClick={noteLike.toggle}
+              aria-pressed={noteLike.liked}
+              aria-label="시인의 노트에 좋아요"
+            >
+              <Heart size={16} filled={noteLike.liked} />
+              {poem.noteLikes}
+            </button>
           </div>
           <div className="web-poem__note-card">
             <div className="web-poem__note-inner">
@@ -147,6 +133,23 @@ function WebPoemDetail({ ctx, preview = false }: { ctx: PoemContext; preview?: b
             </div>
           </div>
         </section>
+
+        {/* 시 본문 좋아요 — 다 읽고 난 자리(댓글 바로 위)에 둔다 */}
+        <div className="web-poem__like-bar">
+          <p className="web-poem__like-label">이 시가 마음에 드셨나요?</p>
+          <button
+            type="button"
+            className={
+              'web-poem__like-btn' +
+              (poemLike.liked ? ' web-poem__like-btn--liked' : '')
+            }
+            onClick={poemLike.toggle}
+            aria-pressed={poemLike.liked}
+          >
+            <Heart size={20} filled={poemLike.liked} />
+            <span className="web-poem__like-count">{poem.likes}</span>
+          </button>
+        </div>
 
         {!preview && <PoemComments poemId={poem.id} />}
 

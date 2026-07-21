@@ -7,9 +7,11 @@ export interface Poem {
   note?: string // 시인의 노트 (관리자 등록 시 입력)
 }
 
-// Firestore 문서(문서 id 포함)
+// Firestore 문서(문서 id 포함).
+// noteLikes는 시인의 노트에 따로 누르는 좋아요 수 (본문 좋아요와 별개).
 export interface PoemDoc extends Poem {
   id: string
+  noteLikes: string
 }
 
 // Unsplash photo id -> 이미지 URL
