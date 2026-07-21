@@ -165,17 +165,6 @@
     }
   }
 
-  // 다녀간 사람 수 (버튼 아래 한 줄)
-  &__visits {
-    margin: 0;
-    padding: 18px 20px 28px;
-    text-align: center;
-    font-family: $font-serif;
-    font-size: 13px;
-    letter-spacing: 0.02em;
-    color: $ink-faint;
-  }
-
   @media (max-width: $breakpoint-mobile) {
     display: flex;
   }

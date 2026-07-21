@@ -20,8 +20,7 @@ function PoemPreview({ poem: form, onClose }: { poem: Poem; onClose: () => void 
     ...form,
     id: 'preview',
     title: form.title || '제목 없음',
-    noteLikes: '0', // 노트 좋아요·조회수는 저장 후에 쌓인다
-    views: '0',
+    noteLikes: '0', // 노트 좋아요는 저장 후에 쌓인다
     createdAt: 0, // 아직 등록 전 (미리보기에는 NEW 배지가 필요 없다)
   }
   const ctx: PoemContext = { poem, prev: poem, next: poem }

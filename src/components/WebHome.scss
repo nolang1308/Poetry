@@ -197,17 +197,6 @@ $pad-x: clamp(48px, 5vw, 88px);
     color: $ink-faint;
   }
 
-  // 다녀간 사람 수 (히어로 아래 한 줄)
-  &__visits {
-    margin: 0;
-    padding: 0 0 40px;
-    text-align: center;
-    font-family: $font-serif;
-    font-size: 14px;
-    letter-spacing: 0.02em;
-    color: $ink-faint;
-  }
-
   // 좁은 화면에서는 모바일 뷰로 전환
   @media (max-width: $breakpoint-mobile) {
     display: none;

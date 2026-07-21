@@ -11,11 +11,9 @@ export interface Poem {
 // noteLikes는 시인의 노트에 따로 누르는 좋아요 수 (본문 좋아요와 별개).
 // createdAt은 Firestore의 sortKey — 등록 시각(ms). 화면에 보이는 date는
 // 관리자가 직접 적는 표시용 문자열이라, 신규 판정에는 이 값을 쓴다.
-// views는 이 시를 처음 열어 본 사람 수 (관리자 화면에만 표시).
 export interface PoemDoc extends Poem {
   id: string
   noteLikes: string
-  views: string
   createdAt: number
 }
 

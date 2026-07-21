@@ -385,7 +385,7 @@ function AdminHome() {
                       {poem.title}
                     </p>
                     <p className="admin-card__meta">
-                      {poem.date} · 좋아요 {poem.likes} · 조회 {poem.views}
+                      {poem.date} · 좋아요 {poem.likes}
                     </p>
                   </div>
 

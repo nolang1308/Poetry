@@ -1,13 +1,10 @@
 import { Link } from 'react-router-dom'
 import WebNav from './WebNav'
 import ArrowRight from './ArrowRight'
-import { useVisits } from '../hooks/useVisits'
 import type { HomeContent } from '../data/home'
 import './WebHome.scss'
 
 function WebHome({ home }: { home: HomeContent }) {
-  const visits = useVisits()
-
   return (
     <div className="web-home">
       <WebNav active="home" />
@@ -61,13 +58,6 @@ function WebHome({ home }: { home: HomeContent }) {
           </div>
         </div>
       </section>
-
-      {/* 다녀간 사람 수 — 숫자를 받아온 뒤에만 조용히 보여 준다 */}
-      {visits !== null && (
-        <p className="web-home__visits">
-          지금까지 {visits.toLocaleString('ko-KR')}분이 다녀가셨습니다
-        </p>
-      )}
     </div>
   )
 }
