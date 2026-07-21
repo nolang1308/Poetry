@@ -170,18 +170,19 @@
     background-color: $line;
   }
 
-  // 목록 — 1열(기본) 또는 2열, 카드(PoemCard)는 그대로 두고 배치만 바꾼다
+  // 목록 — 3열(기본, 사진첩처럼) 또는 1열. 배치만 바꾸고 카드 자체는
+  // PoemCard의 --compact 변형이 좁은 칸에 맞춰 글자를 줄인다.
   &__grid--1 {
     display: flex;
     flex-direction: column;
     gap: 32px;
   }
 
-  &__grid--2 {
+  &__grid--3 {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     align-items: start; // 원본 비율이라 높이가 달라도 각 카드는 위 기준 정렬
-    gap: 28px 16px;
+    gap: 20px 10px;
 
     > * {
       min-width: 0;

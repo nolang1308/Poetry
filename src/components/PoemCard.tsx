@@ -6,6 +6,7 @@ import { isSeen } from '../utils/seen'
 import './PoemCard.scss'
 
 // num: "시집번호-시번호" 번호표 (예: 1-3). 시집에 담긴 시에만 있다.
+// compact: 3열처럼 칸이 좁을 때 글자를 한 단계 줄여 쓴다.
 function PoemCard({
   id,
   title,
@@ -14,7 +15,8 @@ function PoemCard({
   image,
   createdAt,
   num,
-}: PoemDoc & { num?: string }) {
+  compact = false,
+}: PoemDoc & { num?: string; compact?: boolean }) {
   const to = `/poems/${encodeURIComponent(title)}`
   // 최근 등록됐고 이 브라우저에서 아직 열어 보지 않은 시에만 NEW를 붙인다
   const isNew = isRecentlyAdded(createdAt) && !isSeen(id)
@@ -24,10 +26,19 @@ function PoemCard({
   const vtName = isTransitioning ? 'poem-cover' : `poem-card-${id}`
   const shownTitle = num ? `${num}. ${title}` : title
   // 제목이 길어 두 줄이 되면 한 줄에 맞게 폰트를 줄인다.
-  const { ref: titleRef, size: titleSize } = useFitText<HTMLParagraphElement>(shownTitle)
+  // 좁은 칸(compact)에서는 시작 크기와 하한을 함께 낮춘다.
+  const { ref: titleRef, size: titleSize } = useFitText<HTMLParagraphElement>(
+    shownTitle,
+    compact ? 13 : 19,
+    compact ? 10 : 13,
+  )
 
   return (
-    <Link to={to} viewTransition className="poem-card">
+    <Link
+      to={to}
+      viewTransition
+      className={'poem-card' + (compact ? ' poem-card--compact' : '')}
+    >
       <img
         className="poem-card__cover"
         src={image}

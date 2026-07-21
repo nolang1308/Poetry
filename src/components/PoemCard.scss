@@ -123,4 +123,39 @@
     font-size: 13px;
     color: $ink-faint;
   }
+
+  // 3열처럼 칸이 좁을 때 — 카드 구조는 그대로 두고 크기만 한 단계 줄인다.
+  // 제목 글자 크기는 useFitText가 인라인으로 넣으므로 여기서는 그 밖의
+  // 요소와 한 줄 높이만 맞춘다.
+  &--compact {
+    gap: 10px;
+
+    .poem-card__title-box {
+      height: calc(13px * 1.4);
+    }
+
+    .poem-card__poet {
+      font-size: 11px;
+    }
+
+    .poem-card__meta {
+      gap: 5px;
+    }
+
+    .poem-card__like-count,
+    .poem-card__date {
+      font-size: 10px;
+    }
+
+    .poem-card__dot {
+      font-size: 10px;
+    }
+
+    .poem-card__new {
+      top: 6px;
+      left: 6px;
+      padding: 2px 6px;
+      font-size: 9px;
+    }
+  }
 }

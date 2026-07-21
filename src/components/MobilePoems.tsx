@@ -17,15 +17,16 @@ const filterChips: { label: string; key: SortKey }[] = [
 // 한 번에 노출하는 시 개수 (스크롤로 계속 불러옴)
 const PAGE_SIZE = 10
 
-// 목록 보기 방식 (1열/2열) — 마지막 선택을 기억한다
-type ViewCols = 1 | 2
+// 목록 보기 방식 (3열 기본 / 1열) — 마지막 선택을 기억한다
+type ViewCols = 1 | 3
 const VIEW_KEY = 'poems-view-cols'
 
 function loadViewCols(): ViewCols {
   try {
-    return localStorage.getItem(VIEW_KEY) === '2' ? 2 : 1
+    // 저장값이 '1'일 때만 1열, 그 밖에는(값이 없거나 예전 '2') 기본 3열
+    return localStorage.getItem(VIEW_KEY) === '1' ? 1 : 3
   } catch {
-    return 1
+    return 3
   }
 }
 
@@ -213,11 +214,11 @@ function MobilePoems({
               type="button"
               className={
                 'mobile-poems__view-btn' +
-                (cols === 2 ? ' mobile-poems__view-btn--active' : '')
+                (cols === 3 ? ' mobile-poems__view-btn--active' : '')
               }
-              aria-label="2열로 보기"
-              aria-pressed={cols === 2}
-              onClick={() => onCols(2)}
+              aria-label="3열로 보기"
+              aria-pressed={cols === 3}
+              onClick={() => onCols(3)}
             >
               <LayoutGrid size={16} />
             </button>
@@ -231,7 +232,12 @@ function MobilePoems({
             className={`mobile-poems__grid mobile-poems__grid--${cols}`}
           >
             {shown.map((poem) => (
-              <PoemCard key={poem.id} {...poem} num={numbers?.get(poem.id)} />
+              <PoemCard
+                key={poem.id}
+                {...poem}
+                num={numbers?.get(poem.id)}
+                compact={cols === 3}
+              />
             ))}
           </div>
         ) : query ? (
