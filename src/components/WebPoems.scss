@@ -110,6 +110,22 @@ $pad-x: clamp(48px, 5vw, 88px);
       background-color: $accent;
       border-color: $accent;
     }
+
+    // 정렬이 아닌 별개 축의 필터 — 켜지면 NEW 배지와 같은 색으로 강조
+    &--unread-on {
+      font-weight: 700;
+      color: #fff;
+      background-color: #b5443a;
+      border-color: #b5443a;
+    }
+  }
+
+  // 정렬 칩과 "안 읽은 시" 필터를 가르는 세로선
+  &__filter-divider {
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+    background-color: $line;
   }
 
   // Grid (책장)

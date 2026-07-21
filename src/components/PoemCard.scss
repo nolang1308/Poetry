@@ -2,11 +2,31 @@
 
 // Pencil "Poem Cover" 컴포넌트
 .poem-card {
+  position: relative; // NEW 배지 기준
   display: flex;
   flex-direction: column;
   gap: 16px;
   width: 100%;
   text-decoration: none;
+
+  // 최근 등록됐고 아직 안 본 시에만 붙는 배지 (표지 왼쪽 위)
+  &__new {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px 9px;
+    font-family: $font-body;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #fff;
+    background-color: #b5443a;
+    border-radius: 3px;
+    box-shadow: 0 4px 10px -2px rgba(43, 40, 35, 0.35);
+    pointer-events: none;
+    // 표지가 떠오를 때 배지도 같이 따라 올라간다
+    transition: transform 0.35s ease;
+  }
 
   // 크롭 없이 사진의 원본 비율 그대로 노출
   &__cover {
@@ -64,6 +84,10 @@
 
     &:hover &__title {
       color: $accent;
+    }
+
+    &:hover &__new {
+      transform: translateY(-8px);
     }
   }
 

@@ -20,12 +20,14 @@ function Poems() {
         loading={loading}
         numbers={numbers}
         initialSort="all"
+        showUnreadFilter
       />
       <MobilePoems
         poems={ordered}
         loading={loading}
         numbers={numbers}
         initialSort="all"
+        showUnreadFilter
       />
     </>
   )

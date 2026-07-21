@@ -151,6 +151,23 @@
       background-color: $accent;
       border-color: $accent;
     }
+
+    // 정렬이 아닌 별개 축의 필터 — 켜지면 NEW 배지와 같은 색으로 강조
+    &--unread-on {
+      font-weight: 700;
+      color: #fff;
+      background-color: #b5443a;
+      border-color: #b5443a;
+    }
+  }
+
+  // 정렬 칩과 "안 읽은 시" 필터를 가르는 세로선
+  &__chip-divider {
+    flex-shrink: 0;
+    width: 1px;
+    height: 18px;
+    margin: 0 2px;
+    background-color: $line;
   }
 
   // 목록 — 1열(기본) 또는 2열, 카드(PoemCard)는 그대로 두고 배치만 바꾼다

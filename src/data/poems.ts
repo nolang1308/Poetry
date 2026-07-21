@@ -9,9 +9,22 @@ export interface Poem {
 
 // Firestore 문서(문서 id 포함).
 // noteLikes는 시인의 노트에 따로 누르는 좋아요 수 (본문 좋아요와 별개).
+// createdAt은 Firestore의 sortKey — 등록 시각(ms). 화면에 보이는 date는
+// 관리자가 직접 적는 표시용 문자열이라, 신규 판정에는 이 값을 쓴다.
 export interface PoemDoc extends Poem {
   id: string
   noteLikes: string
+  createdAt: number
+}
+
+// 등록 후 이 기간 안에 있으면 "새 시"로 본다
+export const NEW_POEM_DAYS = 3
+
+// 등록된 지 얼마 안 된 시인가 (NEW 배지 조건 중 하나).
+// 나머지 조건인 "아직 안 본 시"는 utils/seen 에서 판정한다.
+export function isRecentlyAdded(createdAt: number): boolean {
+  if (!createdAt) return false // sortKey가 없는 예전 문서는 새 시로 보지 않는다
+  return Date.now() - createdAt < NEW_POEM_DAYS * 24 * 60 * 60 * 1000
 }
 
 // Unsplash photo id -> 이미지 URL

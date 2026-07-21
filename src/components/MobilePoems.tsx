@@ -39,6 +39,8 @@ interface MobilePoemsProps {
   initialSort?: SortKey
   // 시 id → "시집번호-시번호" 번호표
   numbers?: Map<string, string>
+  // 전체 시 페이지에서만 "안 읽은 시만" 버튼을 노출한다
+  showUnreadFilter?: boolean
 }
 
 function MobilePoems({
@@ -48,9 +50,20 @@ function MobilePoems({
   backTo = '/',
   initialSort = 'likes',
   numbers,
+  showUnreadFilter = false,
 }: MobilePoemsProps) {
-  const { query, setQuery, sort, setSort, dateAsc, setDateAsc, results } =
-    usePoemFilter(poems, initialSort)
+  const {
+    query,
+    setQuery,
+    sort,
+    setSort,
+    dateAsc,
+    setDateAsc,
+    unreadOnly,
+    setUnreadOnly,
+    unreadCount,
+    results,
+  } = usePoemFilter(poems, initialSort)
   const [menuOpen, setMenuOpen] = useState(false)
   const [cols, setCols] = useState<ViewCols>(loadViewCols)
 
@@ -68,10 +81,10 @@ function MobilePoems({
   const [visible, setVisible] = useState(PAGE_SIZE)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  // 검색어·정렬이 바뀌면 다시 처음 10편부터
+  // 검색어·정렬·필터가 바뀌면 다시 처음 10편부터
   useEffect(() => {
     setVisible(PAGE_SIZE)
-  }, [query, sort, dateAsc])
+  }, [query, sort, dateAsc, unreadOnly])
 
   const shown = results.slice(0, visible)
   const hasMore = visible < results.length
@@ -162,6 +175,25 @@ function MobilePoems({
                 </button>
               )
             })}
+
+            {showUnreadFilter && (
+              <>
+                <span className="mobile-poems__chip-divider" aria-hidden="true" />
+                <button
+                  type="button"
+                  className={
+                    'mobile-poems__chip mobile-poems__chip--unread' +
+                    (unreadOnly ? ' mobile-poems__chip--unread-on' : '')
+                  }
+                  onClick={() =>
+                    withViewTransition(() => setUnreadOnly((v) => !v))
+                  }
+                  aria-pressed={unreadOnly}
+                >
+                  안 읽은 시 {unreadCount}
+                </button>
+              </>
+            )}
           </div>
 
           <div className="mobile-poems__view" role="group" aria-label="보기 방식">
@@ -205,6 +237,10 @@ function MobilePoems({
         ) : query ? (
           <p className="mobile-poems__empty">
             '{query}'에 대한 검색 결과가 없습니다.
+          </p>
+        ) : unreadOnly ? (
+          <p className="mobile-poems__empty">
+            안 읽은 시가 없습니다. 모든 시를 읽으셨네요.
           </p>
         ) : (
           <p className="mobile-poems__empty">등록된 시가 없습니다.</p>

@@ -1,12 +1,23 @@
 import { Link, useViewTransitionState } from 'react-router-dom'
 import { Heart } from './icons'
 import { useFitText } from '../hooks/useFitText'
-import type { PoemDoc } from '../data/poems'
+import { isRecentlyAdded, type PoemDoc } from '../data/poems'
+import { isSeen } from '../utils/seen'
 import './PoemCard.scss'
 
 // num: "시집번호-시번호" 번호표 (예: 1-3). 시집에 담긴 시에만 있다.
-function PoemCard({ id, title, likes, date, image, num }: PoemDoc & { num?: string }) {
+function PoemCard({
+  id,
+  title,
+  likes,
+  date,
+  image,
+  createdAt,
+  num,
+}: PoemDoc & { num?: string }) {
   const to = `/poems/${encodeURIComponent(title)}`
+  // 최근 등록됐고 이 브라우저에서 아직 열어 보지 않은 시에만 NEW를 붙인다
+  const isNew = isRecentlyAdded(createdAt) && !isSeen(id)
   // 상세로 전환 중이면 공유 이름(poem-cover)으로 morph,
   // 그 외에는 카드별 고유 이름으로 재정렬 시 부드럽게 이동(FLIP).
   const isTransitioning = useViewTransitionState(to)
@@ -23,6 +34,7 @@ function PoemCard({ id, title, likes, date, image, num }: PoemDoc & { num?: stri
         alt={title}
         style={{ viewTransitionName: vtName }}
       />
+      {isNew && <span className="poem-card__new">NEW</span>}
       <div className="poem-card__info">
         <div className="poem-card__title-box">
           <p

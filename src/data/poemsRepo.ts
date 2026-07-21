@@ -29,6 +29,8 @@ function fromDoc(id: string, data: DocumentData): PoemDoc {
     // 노트 좋아요 도입 이전 문서에는 필드가 없다 → 0으로 본다
     noteLikes: String(data.noteLikes ?? 0),
     image: data.image ?? '',
+    // 등록 시각. 정렬용으로 넣던 값을 NEW 배지 판정에도 그대로 쓴다.
+    createdAt: Number(data.sortKey ?? 0),
   }
 }
 

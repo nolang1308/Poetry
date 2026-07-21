@@ -4,6 +4,7 @@ import WebPoemDetail from '../components/WebPoemDetail'
 import MobilePoemDetail from '../components/MobilePoemDetail'
 import { getPoemContext } from '../data/poems'
 import { usePoems } from '../hooks/usePoems'
+import { markSeen } from '../utils/seen'
 
 function PoemDetail() {
   const { title } = useParams()
@@ -14,6 +15,12 @@ function PoemDetail() {
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [title])
+
+  // 한 번 열어 본 시는 기억해 둔다 → 목록의 NEW 배지가 떨어진다
+  const poemId = ctx?.poem.id
+  useEffect(() => {
+    if (poemId) markSeen(poemId)
+  }, [poemId])
 
   if (loading) {
     return <div className="poem-detail-loading">시를 불러오는 중…</div>
