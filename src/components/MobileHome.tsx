@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom'
 import ArrowRight from './ArrowRight'
 import { Menu } from './icons'
 import MobileMenu from './MobileMenu'
+import { useVisits } from '../hooks/useVisits'
 import type { HomeContent } from '../data/home'
 import './MobileHome.scss'
 
 function MobileHome({ home }: { home: HomeContent }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const visits = useVisits()
 
   return (
     <div className="mobile-home">
@@ -63,6 +65,13 @@ function MobileHome({ home }: { home: HomeContent }) {
           <ArrowRight size={18} />
         </Link>
       </div>
+
+      {/* 다녀간 사람 수 — 숫자를 받아온 뒤에만 조용히 보여 준다 */}
+      {visits !== null && (
+        <p className="mobile-home__visits">
+          지금까지 {visits.toLocaleString('ko-KR')}분이 다녀가셨습니다
+        </p>
+      )}
 
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
     </div>

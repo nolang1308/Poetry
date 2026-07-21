@@ -26,13 +26,21 @@ service cloud.firestore {
           );
       }
 
+      // 조회수: views만 +1 (감소는 허용하지 않는다)
+      function onlyViewIncrement() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['views'])
+          && request.resource.data.views is int
+          && request.resource.data.views == resource.data.get('views', 0) + 1;
+      }
+
       allow read: if true;
       allow create: if isAdmin();
       allow delete: if isAdmin();
       // likes = 시 본문 좋아요, noteLikes = 시인의 노트 좋아요 (각각 따로 집계)
       allow update: if isAdmin()
         || onlyLikeDelta('likes')
-        || onlyLikeDelta('noteLikes');
+        || onlyLikeDelta('noteLikes')
+        || onlyViewIncrement();
     }
 
     // 시집(시 묶음): 읽기는 누구나, 만들기/수정/삭제는 관리자만
@@ -88,6 +96,16 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null
         && isAdminEmail(request.auth.token.email);
+    }
+
+    // 사이트 방문자 수: visits 필드만 +1 (누구나).
+    // 위의 settings 규칙과 함께 평가되므로 관리자 쓰기는 그대로 열려 있다.
+    match /settings/stats {
+      allow create: if request.resource.data.keys().hasOnly(['visits'])
+        && request.resource.data.visits == 1;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['visits'])
+        && request.resource.data.visits is int
+        && request.resource.data.visits == resource.data.get('visits', 0) + 1;
     }
   }
 }

@@ -3,7 +3,10 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { usePoems } from '../hooks/usePoems'
 import { useBooks } from '../hooks/useBooks'
 import { addBook, updateBook, MAX_BOOK_POEMS } from '../data/booksRepo'
-import { buildPoemNumbers } from '../data/poemNumbers'
+import {
+  buildRegistrationNumbers,
+  sortByRegistrationAsc,
+} from '../data/poemNumbers'
 import { fileToEditableUrl } from '../utils/image'
 import ImageCropper from '../components/ImageCropper'
 import { Check, Search } from '../components/icons'
@@ -105,8 +108,20 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
   const available = poems.filter((p) => !usedElsewhere.has(p.id))
   const hiddenCount = poems.length - available.length
 
-  // "시집번호-시번호" 번호표 (예: 1-3). 이미 시집에 담겨 저장된 시에만 붙는다.
-  const numbers = useMemo(() => buildPoemNumbers(books, poems), [books, poems])
+  // 이미 지워진 시가 시집에 남아 있으면 걸러낸다.
+  // (예전에 삭제된 시의 id가 남아 화면에는 보이지 않으면서 정원만
+  //  차지하던 문제를 편집 화면을 열 때 스스로 바로잡는다)
+  useEffect(() => {
+    if (loading) return
+    const alive = new Set(poems.map((p) => p.id))
+    setSelectedIds((prev) => {
+      const next = prev.filter((pid) => alive.has(pid))
+      return next.length === prev.length ? prev : next
+    })
+  }, [loading, poems])
+
+  // 제목 앞에 붙는 등록 순번 (관리자 홈과 같은 번호)
+  const regNumbers = useMemo(() => buildRegistrationNumbers(poems), [poems])
 
   const q = normalize(query)
   const searched = q
@@ -114,6 +129,36 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
     : available
   // 기본은 최신 등록이 앞(내림차순). 토글하면 오래된 등록부터(오름차순).
   const filtered = dateAsc ? [...searched].reverse() : searched
+
+  // ── 목록 전체 선택/해제 ──
+  const filteredIds = filtered.map((p) => p.id)
+  const allSelected =
+    filteredIds.length > 0 && filteredIds.every((pid) => selectedIds.includes(pid))
+
+  // 지금 목록에 보이는 시를 한 번에 담는다. 이미 고른 것과 합친 뒤 항상
+  // 등록 오름차순(먼저 등록한 시가 시집 앞쪽)으로 다시 줄을 세운다.
+  // 화면 정렬(등록순 토글)이나 누른 순서와 무관하게 결과는 늘 같다.
+  const selectAllFiltered = () => {
+    const merged = new Set([...selectedIds, ...filteredIds])
+    const ordered = sortByRegistrationAsc(poems)
+      .filter((p) => merged.has(p.id))
+      .map((p) => p.id)
+
+    if (ordered.length > MAX_BOOK_POEMS) {
+      setSelectedIds(ordered.slice(0, MAX_BOOK_POEMS))
+      setError(`시집에는 최대 ${MAX_BOOK_POEMS}편까지 담을 수 있습니다.`)
+      return
+    }
+    setSelectedIds(ordered)
+    setError('')
+  }
+
+  // 목록에 보이는 시만 선택에서 뺀다 (검색으로 가려진 선택은 그대로 둔다)
+  const clearFiltered = () => {
+    const shown = new Set(filteredIds)
+    setSelectedIds(selectedIds.filter((pid) => !shown.has(pid)))
+    setError('')
+  }
 
   // ── 모바일: 사진첩처럼 드래그로 여러 편 선택 ──
   // 카드를 짚고 가로로 끌기 시작하면 선택 모드가 되어, 손가락이 지나간
@@ -283,7 +328,11 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
       setError('시집 이름을 입력해 주세요.')
       return
     }
-    if (selectedIds.length === 0) {
+    // 저장 직전 안전망 — 어떤 경로로든 지워진 시의 id가 섞여 있으면 뺀다
+    const alive = new Set(poems.map((p) => p.id))
+    const poemIds = selectedIds.filter((pid) => alive.has(pid))
+
+    if (poemIds.length === 0) {
       setError('시집에 넣을 시를 한 편 이상 선택해 주세요.')
       return
     }
@@ -292,7 +341,7 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
       const data = {
         name: name.trim(),
         name2: name2.trim(),
-        poemIds: selectedIds,
+        poemIds,
         image,
         lastImage,
       }
@@ -475,13 +524,24 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
                 <p className="admin-book-form__count">
                   {selectedIds.length}/{MAX_BOOK_POEMS}편 선택됨
                 </p>
-                <button
-                  type="button"
-                  className="admin-book-form__sort"
-                  onClick={() => setDateAsc((v) => !v)}
-                >
-                  등록순 {dateAsc ? '↑ 오래된 것부터' : '↓ 최신부터'}
-                </button>
+                <div className="admin-book-form__list-btns">
+                  <button
+                    type="button"
+                    className="admin-book-form__sort"
+                    onClick={allSelected ? clearFiltered : selectAllFiltered}
+                    disabled={filtered.length === 0}
+                    title="담기는 순서는 먼저 등록한 시가 앞쪽입니다"
+                  >
+                    {allSelected ? '전체 해제' : '전체 선택'}
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-book-form__sort"
+                    onClick={() => setDateAsc((v) => !v)}
+                  >
+                    등록순 {dateAsc ? '↑ 오래된 것부터' : '↓ 최신부터'}
+                  </button>
+                </div>
               </div>
 
               {loading ? (
@@ -542,11 +602,9 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
 
                         <div className="admin-card__info">
                           <p className="admin-card__title">
-                            {numbers.has(poem.id) && (
-                              <span className="admin-book-form__seq">
-                                {numbers.get(poem.id)}.{' '}
-                              </span>
-                            )}
+                            <span className="admin-book-form__seq">
+                              {regNumbers.get(poem.id)}.{' '}
+                            </span>
                             {poem.title}
                           </p>
                           <p className="admin-card__meta">

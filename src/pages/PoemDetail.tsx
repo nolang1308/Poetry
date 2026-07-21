@@ -4,7 +4,8 @@ import WebPoemDetail from '../components/WebPoemDetail'
 import MobilePoemDetail from '../components/MobilePoemDetail'
 import { getPoemContext } from '../data/poems'
 import { usePoems } from '../hooks/usePoems'
-import { markSeen } from '../utils/seen'
+import { viewPoem } from '../data/poemsRepo'
+import { isSeen, markSeen } from '../utils/seen'
 
 function PoemDetail() {
   const { title } = useParams()
@@ -16,10 +17,13 @@ function PoemDetail() {
     window.scrollTo(0, 0)
   }, [title])
 
-  // 한 번 열어 본 시는 기억해 둔다 → 목록의 NEW 배지가 떨어진다
+  // 한 번 열어 본 시는 기억해 둔다 → 목록의 NEW 배지가 떨어진다.
+  // 처음 여는 시라면 조회수도 함께 올린다(같은 사람이 다시 열면 세지 않는다).
   const poemId = ctx?.poem.id
   useEffect(() => {
-    if (poemId) markSeen(poemId)
+    if (!poemId) return
+    if (!isSeen(poemId)) viewPoem(poemId).catch(() => {})
+    markSeen(poemId)
   }, [poemId])
 
   if (loading) {

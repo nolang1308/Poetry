@@ -203,8 +203,10 @@
     margin-left: auto;
     flex-shrink: 0;
 
+    // 시 카드 쪽 버튼 여백이 바뀌어도 시집 버튼은 원래 크기를 유지한다
     .admin-card__btn {
       flex: none;
+      padding: 8px 10px;
     }
   }
 
@@ -306,6 +308,35 @@
     color: $ink-soft;
   }
 
+  // 묶음 선택 모드 진입 (평소에는 표지에 선택 박스를 띄우지 않는다)
+  &__select-btn,
+  // 목록 열 수 전환 (기본 자동 ↔ 3열)
+  &__cols-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 16px;
+    font-family: $font-body;
+    font-size: 13px;
+    font-weight: 500;
+    color: $ink-soft;
+    background-color: $bg;
+    border: 1px solid $line;
+    border-radius: 100px;
+    cursor: pointer;
+
+    &:hover {
+      border-color: $ink-faint;
+    }
+
+    &--on {
+      font-weight: 700;
+      color: $surface;
+      background-color: $accent;
+      border-color: $accent;
+    }
+  }
+
   &__bulk {
     display: flex;
     gap: 10px;
@@ -343,6 +374,14 @@
         background-color: #fbeeec;
       }
     }
+
+    // 선택 모드 끝내기
+    &--done {
+      font-weight: 700;
+      color: $surface;
+      background-color: $accent;
+      border-color: $accent;
+    }
   }
 
   &__empty {
@@ -359,6 +398,85 @@
     grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
     gap: 28px 24px;
     margin-top: 28px;
+
+    // 3열 고정 — 표지를 크게 보며 고를 때.
+    // 카드 폭이 세 배 가까이 넓어지므로, 기본 보기(원본 비율 그대로)를
+    // 그대로 쓰면 세로 사진의 높이가 폭발한다. 이 모드에서만 표지를
+    // 일정 비율로 묶고 버튼 폭도 붙잡아 둔다.
+    &--3 {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px 28px;
+
+      // 그리드 셀이 내용(긴 제목)보다 넓어지지 않도록 — 칸 폭에 맞춰 줄어들고
+      // 넘치는 글자는 말줄임 처리된다. 이게 없으면 카드가 화면 밖으로 밀려난다.
+      // (시집 만들기의 시 선택 목록과 같은 처리)
+      .admin-card,
+      .admin-card__info {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .admin-card__cover {
+        display: block;
+        aspect-ratio: 4 / 5;
+        overflow: hidden;
+      }
+
+      .admin-card__cover-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .admin-card__title {
+        font-size: 19px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .admin-card__meta {
+        font-size: 13px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .admin-card__btn {
+        padding: 9px 20px;
+      }
+
+      // 좁은 화면: 사진첩처럼 (시집 만들기 목록과 같은 크기 규칙)
+      @media (max-width: $breakpoint-mobile) {
+        gap: 18px 10px;
+
+        .admin-card {
+          gap: 8px;
+        }
+
+        .admin-card__title {
+          font-size: 14px;
+        }
+
+        .admin-card__meta {
+          font-size: 11px;
+        }
+
+        .admin-card__check {
+          top: 6px;
+          left: 6px;
+          width: 22px;
+          height: 22px;
+        }
+
+        // 칸이 좁으므로 삭제 버튼도 잘게 줄인다
+        .admin-card__btn {
+          gap: 3px;
+          padding: 6px 10px;
+          font-size: 11px;
+        }
+      }
+    }
   }
 }
 
@@ -368,8 +486,11 @@
   flex-direction: column;
   gap: 12px;
 
-  // 크롭 없이 사진의 원본 비율 그대로 노출 (시 목록과 동일)
+  // 크롭 없이 사진의 원본 비율 그대로 노출 (시 목록과 동일).
+  // 선택 모드에서는 button, 평소에는 수정 화면으로 가는 링크로 렌더된다.
   &__cover {
+    display: block;
+    text-decoration: none;
     position: relative;
     width: 100%;
     min-height: 80px; // 사진이 없어도 선택 영역 확보
@@ -389,6 +510,11 @@
     width: 100%;
     height: auto;
     border-radius: 3px;
+  }
+
+  // 평소의 표지 — 누르면 수정 화면으로 간다
+  &__cover--link:hover {
+    outline-color: $accent-soft;
   }
 
   &--selected &__cover {
@@ -429,6 +555,29 @@
     color: $ink;
   }
 
+  // 등록 순번 (먼저 등록한 시가 1번)
+  &__seq {
+    color: $ink-faint;
+    font-weight: 400;
+  }
+
+  // 아직 어느 시집에도 담기지 않은 시 — 표지 오른쪽 위에 표시
+  &__unfiled {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 3px 9px;
+    font-family: $font-body;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: $ink-soft;
+    background-color: rgba(252, 250, 244, 0.92);
+    border: 1px solid $line;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+
   &__meta {
     margin: 0;
     font-family: $font-body;
@@ -436,8 +585,10 @@
     color: $ink-faint;
   }
 
+  // 삭제 하나만 남으므로 카드 폭을 채우지 않고 오른쪽에 붙인다
   &__actions {
     display: flex;
+    justify-content: flex-end;
     gap: 8px;
   }
 
@@ -446,8 +597,8 @@
     align-items: center;
     justify-content: center;
     gap: 5px;
-    flex: 1;
-    padding: 8px 10px;
+    flex: 0 0 auto;
+    padding: 8px 14px;
     font-family: $font-body;
     font-size: 13px;
     font-weight: 500;

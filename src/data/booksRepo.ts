@@ -5,6 +5,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  getDocs,
   query,
   orderBy,
   type DocumentData,
@@ -102,4 +103,27 @@ export async function updateBook(id: string, data: Book) {
 
 export async function deleteBook(id: string) {
   await deleteDoc(doc(db, 'books', id))
+}
+
+// 시가 삭제되면 그 시를 담고 있던 시집의 poemIds에서도 빼낸다.
+// 이걸 하지 않으면 존재하지 않는 id가 시집에 남아 정원(최대 편수)만
+// 차지한 채 화면에는 보이지 않는다.
+export async function removePoemsFromBooks(poemIds: string[]) {
+  if (poemIds.length === 0) return
+  const removed = new Set(poemIds)
+
+  // 관리자 화면은 시집을 이미 구독 중이므로 캐시를 쓰고, 없으면 직접 읽는다
+  const books =
+    cache ??
+    (await getDocs(booksCol)).docs.map((d) => fromDoc(d.id, d.data()))
+
+  await Promise.all(
+    books
+      .filter((b) => b.poemIds.some((pid) => removed.has(pid)))
+      .map((b) =>
+        updateDoc(doc(db, 'books', b.id), {
+          poemIds: b.poemIds.filter((pid) => !removed.has(pid)),
+        }),
+      ),
+  )
 }

@@ -1,6 +1,18 @@
 import type { BookDoc } from './booksRepo'
 import type { PoemDoc } from './poems'
 
+// 등록 순번: 먼저 등록한 시가 1번, 가장 최근 시가 n번.
+// 관리자 화면에서 제목 앞에 붙이는 번호이자, 시집 번호표 계산의 기준이다.
+// 중간의 시를 지우면 그 뒤 번호는 한 칸씩 당겨진다.
+export function buildRegistrationNumbers(
+  poems: PoemDoc[],
+): Map<string, number> {
+  // poems는 최신 등록순(내림차순)이므로 뒤에서부터 1번
+  const map = new Map<string, number>()
+  poems.forEach((p, i) => map.set(p.id, poems.length - i))
+  return map
+}
+
 // 시 번호표: "시집번호-시번호" (예: 1-3).
 // 시집 번호는 먼저 만든 시집이 1번, 시 번호는 그 시집 안에서
 // 먼저 등록한 시가 1번이다. 시집에 담기지 않은 시는 번호가 없다.
@@ -8,9 +20,7 @@ export function buildPoemNumbers(
   books: BookDoc[],
   poems: PoemDoc[],
 ): Map<string, string> {
-  // poems는 최신 등록순(내림차순) → 등록 오름차순 순번을 계산
-  const regOrder = new Map<string, number>()
-  poems.forEach((p, i) => regOrder.set(p.id, poems.length - i))
+  const regOrder = buildRegistrationNumbers(poems)
 
   const map = new Map<string, string>()
   // books도 최신순(내림차순) → 뒤에서부터가 1번 시집
