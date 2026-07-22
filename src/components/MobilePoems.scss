@@ -181,7 +181,7 @@
   &__grid--3 {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    align-items: start; // 원본 비율이라 높이가 달라도 각 카드는 위 기준 정렬
+    align-items: start;
     gap: 20px 10px;
 
     > * {
