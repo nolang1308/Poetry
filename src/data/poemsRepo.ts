@@ -2,7 +2,7 @@ import {
   collection,
   doc,
   onSnapshot,
-  addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   getDocs,
@@ -15,6 +15,11 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { removePoemsFromBooks } from './booksRepo'
+import {
+  isDataUrl,
+  uploadImageReplacing,
+  deleteImageFolder,
+} from './imageStorage'
 import { webPoems, type Poem, type PoemDoc } from './poems'
 
 const poemsCol = collection(db, 'poems')
@@ -73,27 +78,39 @@ export function subscribeStore(cb: (poems: PoemDoc[]) => void): () => void {
   }
 }
 
+// 표지 사진: 폼에서 온 data URL이면 Storage에 올리고 문서에는 URL만 남긴다.
+// (base64를 문서에 넣으면 목록 첫 로딩 때 전체 사진을 통째로 내려받게 된다)
+async function resolveImage(id: string, image?: string): Promise<string> {
+  if (!image) return ''
+  if (!isDataUrl(image)) return image
+  return uploadImageReplacing(`poems/${id}`, image)
+}
+
 export async function addPoem(data: Poem) {
-  await addDoc(poemsCol, {
+  // 사진 업로드 경로에 문서 id가 필요하므로 id를 먼저 받아 둔다
+  const ref = doc(poemsCol)
+  const image = await resolveImage(ref.id, data.image)
+  await setDoc(ref, {
     title: data.title,
     content: data.content ?? '',
     note: data.note ?? '',
     date: data.date,
     likes: Number(data.likes) || 0,
     noteLikes: 0,
-    image: data.image ?? '',
+    image,
     sortKey: Date.now(),
   })
 }
 
 export async function updatePoem(id: string, data: Poem) {
+  const image = await resolveImage(id, data.image)
   await updateDoc(doc(db, 'poems', id), {
     title: data.title,
     content: data.content ?? '',
     note: data.note ?? '',
     date: data.date,
     likes: Number(data.likes) || 0,
-    image: data.image ?? '',
+    image,
   })
 }
 
@@ -102,6 +119,8 @@ export async function updatePoem(id: string, data: Poem) {
 export async function deletePoems(ids: string[]) {
   await Promise.all(ids.map((id) => deleteDoc(doc(db, 'poems', id))))
   await removePoemsFromBooks(ids)
+  // Storage에 올려 둔 표지도 함께 정리 (실패해도 삭제 흐름은 유지)
+  await Promise.all(ids.map((id) => deleteImageFolder(`poems/${id}`)))
 }
 
 // 시 본문 좋아요 ±1 (보안 규칙상 likes 필드만 단독 변경 허용)

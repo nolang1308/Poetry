@@ -2,7 +2,7 @@ import {
   collection,
   doc,
   onSnapshot,
-  addDoc,
+  setDoc,
   updateDoc,
   deleteDoc,
   getDocs,
@@ -11,6 +11,11 @@ import {
   type DocumentData,
 } from 'firebase/firestore'
 import { db } from '../firebase'
+import {
+  isDataUrl,
+  uploadImageReplacing,
+  deleteImageFolder,
+} from './imageStorage'
 
 // 한 시집에 담을 수 있는 시의 최대 편수
 export const MAX_BOOK_POEMS = 100
@@ -80,29 +85,53 @@ export function subscribeBooksStore(cb: (books: BookDoc[]) => void): () => void 
   }
 }
 
+// 표지·마지막 장 사진: data URL이면 Storage에 올리고 문서에는 URL만 남긴다.
+// 두 장이 한 시집에 속하므로 books/{id} 아래 하위 폴더로 나눠 담는다.
+async function resolveImage(
+  id: string,
+  sub: 'cover' | 'last',
+  image?: string,
+): Promise<string> {
+  if (!image) return ''
+  if (!isDataUrl(image)) return image
+  return uploadImageReplacing(`books/${id}/${sub}`, image)
+}
+
 export async function addBook(data: Book) {
-  await addDoc(booksCol, {
+  // 사진 업로드 경로에 문서 id가 필요하므로 id를 먼저 받아 둔다
+  const ref = doc(booksCol)
+  const [image, lastImage] = await Promise.all([
+    resolveImage(ref.id, 'cover', data.image),
+    resolveImage(ref.id, 'last', data.lastImage),
+  ])
+  await setDoc(ref, {
     name: data.name,
     name2: data.name2 ?? '',
     poemIds: data.poemIds.slice(0, MAX_BOOK_POEMS),
-    image: data.image ?? '',
-    lastImage: data.lastImage ?? '',
+    image,
+    lastImage,
     sortKey: Date.now(),
   })
 }
 
 export async function updateBook(id: string, data: Book) {
+  const [image, lastImage] = await Promise.all([
+    resolveImage(id, 'cover', data.image),
+    resolveImage(id, 'last', data.lastImage),
+  ])
   await updateDoc(doc(db, 'books', id), {
     name: data.name,
     name2: data.name2 ?? '',
     poemIds: data.poemIds.slice(0, MAX_BOOK_POEMS),
-    image: data.image ?? '',
-    lastImage: data.lastImage ?? '',
+    image,
+    lastImage,
   })
 }
 
 export async function deleteBook(id: string) {
   await deleteDoc(doc(db, 'books', id))
+  // Storage에 올려 둔 사진도 함께 정리 (실패해도 삭제 흐름은 유지)
+  await deleteImageFolder(`books/${id}`)
 }
 
 // 시가 삭제되면 그 시를 담고 있던 시집의 poemIds에서도 빼낸다.

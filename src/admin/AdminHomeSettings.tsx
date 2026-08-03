@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { subscribeHome, updateHome } from '../data/homeRepo'
 import type { HomeContent } from '../data/home'
+import { isDataUrl, uploadImageReplacing } from '../data/imageStorage'
 import { resizeImage } from '../utils/image'
 import './AdminHomeSettings.scss'
 
@@ -44,10 +45,22 @@ function AdminHomeSettings() {
     setSaving(true)
     setError('')
     try {
-      // 새로 올린(dataURL) 이미지만 저장. 기본 에셋 경로는 저장하지 않음.
+      // 새로 올린(dataURL) 사진만 Storage에 올리고 URL을 저장.
+      // 기본 에셋 경로나 이미 올라간 URL은 다시 저장하지 않는다.
       const payload: Partial<HomeContent> = { ...form }
-      if (!form.webImage.startsWith('data:')) delete payload.webImage
-      if (!form.mobileImage.startsWith('data:')) delete payload.mobileImage
+      if (isDataUrl(form.webImage)) {
+        payload.webImage = await uploadImageReplacing('home/web', form.webImage)
+      } else {
+        delete payload.webImage
+      }
+      if (isDataUrl(form.mobileImage)) {
+        payload.mobileImage = await uploadImageReplacing(
+          'home/mobile',
+          form.mobileImage,
+        )
+      } else {
+        delete payload.mobileImage
+      }
       await updateHome(payload)
       navigate('/admin/home')
     } catch {

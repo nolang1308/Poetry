@@ -1,6 +1,11 @@
 import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from 'firebase/firestore'
 import { getAuth, signInAnonymously } from 'firebase/auth'
+import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBwlIuW2PqH_MZ7xm-5dNOhMIQhkjQ9fqA',
@@ -24,8 +29,16 @@ export const ADMIN_EMAILS = [
 ]
 
 export const app = initializeApp(firebaseConfig)
-export const db = getFirestore(app)
+// 받은 데이터를 브라우저(IndexedDB)에 저장해 두는 오프라인 캐시.
+// 재방문 시 캐시로 즉시 화면을 그리고, 뒤에서 변경분만 받아온다.
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+})
 export const auth = getAuth(app)
+// 사진 원본 저장소. Firestore 문서에는 다운로드 URL만 넣는다.
+export const storage = getStorage(app)
 
 // 게스트 식별용 익명 로그인. 댓글 작성 등 uid가 필요한 순간에만 호출한다.
 // 이미 로그인돼 있으면(관리자 포함) 그 uid를 그대로 쓴다.

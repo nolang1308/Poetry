@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAdmin } from './AdminContext'
 import { usePoems } from '../hooks/usePoems'
@@ -9,6 +9,7 @@ import {
 } from '../data/poemNumbers'
 import { deletePoems } from '../data/poemsRepo'
 import { deleteBook } from '../data/booksRepo'
+import { migrateBase64Images } from './migrateImages'
 import {
   Check,
   Trash,
@@ -37,8 +38,16 @@ function loadThreeCols(): boolean {
 function AdminHome() {
   const { logout } = useAdmin()
   const { poems, loading } = usePoems()
-  const { books } = useBooks()
+  const { books, loading: booksLoading } = useBooks()
   const navigate = useNavigate()
+
+  // 예전 방식(base64)으로 저장된 사진이 남아 있으면 Storage로 옮긴다.
+  // 목록이 다 준비된 뒤 한 번만 — 이미 옮긴 문서는 건너뛰므로 부담 없다.
+  useEffect(() => {
+    if (loading || booksLoading) return
+    void migrateBase64Images(poems, books)
+  }, [loading, booksLoading, poems, books])
+
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [query, setQuery] = useState('')
   // 기본은 화면 폭에 맞춰 자동, 켜면 3열로 고정해 표지를 크게 본다

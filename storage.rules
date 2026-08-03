@@ -1,0 +1,22 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 관리자 계정 목록 (firestore.rules와 동일하게 유지)
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email in [
+        '01092375405@poetry-admin.web',
+        '01035959152@poetry-admin.web'
+      ];
+    }
+
+    match /{allPaths=**} {
+      // 사진은 누구나 볼 수 있고, 올리기·지우기는 관리자만.
+      // 업로드는 3MB 이하 이미지 파일로 제한 (request.resource == null 은 삭제)
+      allow read: if true;
+      allow write: if isAdmin()
+        && (request.resource == null
+          || (request.resource.size < 3 * 1024 * 1024
+            && request.resource.contentType.matches('image/.*')));
+    }
+  }
+}
