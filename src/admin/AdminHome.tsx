@@ -310,7 +310,24 @@ function AdminHome() {
         </div>
 
         {loading ? (
-          <p className="admin-home__empty">시를 불러오는 중…</p>
+          // 불러오는 동안 실제 카드와 같은 틀의 자리표시자를 은은히 깜빡여 보여준다
+          <div
+            className={
+              'admin-home__grid' + (threeCols ? ' admin-home__grid--3' : '')
+            }
+            aria-busy="true"
+            aria-label="시를 불러오는 중"
+          >
+            {Array.from({ length: 9 }, (_, i) => (
+              <div key={i} className="admin-card admin-card--skeleton">
+                <div className="admin-card__cover admin-card__skeleton-cover" />
+                <div className="admin-card__info">
+                  <span className="admin-card__skeleton-line" />
+                  <span className="admin-card__skeleton-line admin-card__skeleton-line--short" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : filtered.length === 0 ? (
           <p className="admin-home__empty">
             {poems.length === 0

@@ -585,6 +585,45 @@
     color: $ink-faint;
   }
 
+  // 불러오는 동안의 자리표시자 — 표지·제목·날짜 자리에서 빛이 훑고 지나간다
+  &--skeleton &__cover {
+    box-shadow: none;
+    cursor: default;
+  }
+
+  &__skeleton-cover {
+    aspect-ratio: 4 / 5;
+  }
+
+  &__skeleton-line {
+    height: 15px;
+    width: 70%;
+    border-radius: 3px;
+
+    &--short {
+      height: 11px;
+      width: 45%;
+    }
+  }
+
+  &__skeleton-cover,
+  &__skeleton-line {
+    background: linear-gradient(
+      100deg,
+      rgba(169, 183, 171, 0.35) 35%,
+      rgba(252, 250, 244, 0.75) 50%,
+      rgba(169, 183, 171, 0.35) 65%
+    );
+    background-size: 300% 100%;
+    animation: admin-card-shimmer 1.4s ease-in-out infinite;
+
+    // 움직임 줄이기 설정을 켠 사용자에게는 깜빡임 없이 고정색으로
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+      background: rgba(169, 183, 171, 0.35);
+    }
+  }
+
   // 삭제 하나만 남으므로 카드 폭을 채우지 않고 오른쪽에 붙인다
   &__actions {
     display: flex;
@@ -623,5 +662,15 @@
         background-color: #fbeeec;
       }
     }
+  }
+}
+
+// 스켈레톤 위를 훑고 지나가는 빛
+@keyframes admin-card-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
   }
 }
