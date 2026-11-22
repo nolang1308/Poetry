@@ -106,12 +106,6 @@ function MobilePoems({
     return () => io.disconnect()
   }, [loading, hasMore, visible, results.length])
 
-  // 한글 조합(IME) 중에는 flushSync/전환을 걸지 않아야 글자가 끊기지 않는다
-  const composing = useRef(false)
-  const applyQuery = (v: string, animate: boolean) => {
-    if (animate) withViewTransition(() => setQuery(v))
-    else setQuery(v)
-  }
   // 등록일순이 이미 켜진 상태에서 다시 누르면 오름/내림차순이 뒤집힌다
   const onSort = (key: SortKey) =>
     withViewTransition(() => {
@@ -145,14 +139,12 @@ function MobilePoems({
             type="text"
             placeholder="제목으로 검색"
             value={query}
-            onChange={(e) => applyQuery(e.target.value, !composing.current)}
-            onCompositionStart={() => {
-              composing.current = true
-            }}
-            onCompositionEnd={(e) => {
-              composing.current = false
-              applyQuery(e.currentTarget.value, true)
-            }}
+            // 입력값은 반드시 그 자리에서 바로 반영한다. 화면 전환(View Transition)
+            // 으로 감싸면 반영이 한 박자 늦어져 입력칸 값이 잠깐 옛 값으로 되돌려
+            // 지는데, 아이폰 한글 키보드는 이때 조합이 끊겨 자음·모음이 따로 찍히고
+            // 빠르게 치면 글자가 사라진다. (아이폰은 한글 조합 이벤트도 보내지 않아
+            // 조합 중인지 가려낼 수도 없다)
+            onChange={(e) => setQuery(e.target.value)}
           />
         </div>
 
