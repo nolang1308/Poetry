@@ -1,0 +1,101 @@
+@use '../styles/variables' as *;
+
+// 관리자 홈 상단의 방문자 수 요약 (시집 관리 목록과 같은 카드 틀)
+.visit-stats {
+  margin-top: 28px;
+  padding: 18px;
+  background-color: $surface;
+  border: 1px solid $line;
+  border-radius: 6px;
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    flex-wrap: wrap;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__more {
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+    text-decoration: none;
+
+    &:hover {
+      color: $ink;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin: 14px 0 0;
+    border-top: 1px solid $line;
+  }
+
+  &__item {
+    min-width: 0;
+    padding: 14px 4px 2px 16px;
+    border-left: 1px solid $line;
+
+    &:first-child {
+      padding-left: 4px;
+      border-left: none;
+    }
+  }
+
+  &__label {
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-faint;
+  }
+
+  &__value {
+    margin: 4px 0 0;
+    font-family: $font-serif;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: $ink;
+  }
+
+  &__error {
+    margin: 12px 0 0;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-faint;
+  }
+
+  // 좁은 화면: 2 × 2로 접는다
+  @media (max-width: 520px) {
+    &__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    &__item {
+      padding-bottom: 12px;
+
+      &:nth-child(odd) {
+        padding-left: 4px;
+        border-left: none;
+      }
+
+      &:nth-child(n + 3) {
+        border-top: 1px solid $line;
+      }
+    }
+
+    &__value {
+      font-size: 22px;
+    }
+  }
+}

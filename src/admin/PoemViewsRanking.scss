@@ -1,0 +1,157 @@
+@use '../styles/variables' as *;
+
+// 시별 조회수 순위 (통계 탭의 그래프 카드와 같은 틀)
+.poem-views {
+  margin-top: 12px;
+  padding: 20px 20px 16px;
+  background-color: $surface;
+  border: 1px solid $line;
+  border-radius: 6px;
+
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__sub {
+    margin: 4px 0 0;
+    font-family: $font-body;
+    font-size: 13px;
+    line-height: 1.5;
+    color: $ink-faint;
+  }
+
+  &__total {
+    flex-shrink: 0;
+    margin: 2px 0 0;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+    white-space: nowrap;
+
+    strong {
+      font-size: 15px;
+      color: $ink;
+    }
+  }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  // 한 줄: 순위 · 제목 · 막대 · 숫자.
+  // 줄마다 칸 폭이 같아야 막대 길이를 서로 견줄 수 있으므로 고정 비율을 쓴다.
+  &__row {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 2fr) minmax(0, 3fr) 60px;
+    align-items: center;
+    column-gap: 14px;
+    padding: 10px 4px;
+    border-top: 1px solid $line;
+    font-family: $font-body;
+  }
+
+  &__rank {
+    font-size: 13px;
+    color: $ink-faint;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__name {
+    font-family: $font-serif;
+    font-size: 15px;
+    color: $ink;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__track {
+    display: block;
+    height: 8px;
+  }
+
+  // 가는 막대 — 왼쪽(기준선)은 반듯하게, 끝만 둥글게
+  &__bar {
+    display: block;
+    min-width: 2px;
+    height: 100%;
+    background-color: $accent;
+    border-radius: 0 4px 4px 0;
+  }
+
+  &__count {
+    font-size: 14px;
+    font-weight: 700;
+    color: $ink;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__more {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    padding: 12px 0 4px;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+    background: none;
+    border: none;
+    border-top: 1px solid $line;
+    cursor: pointer;
+
+    &:hover {
+      color: $ink;
+    }
+  }
+
+  &__empty {
+    margin: 0;
+    padding: 36px 0 40px;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-faint;
+    text-align: center;
+    border-top: 1px solid $line;
+  }
+
+  // 좁은 화면: 막대를 제목 아래로 내린다
+  @media (max-width: 600px) {
+    padding: 16px 14px 12px;
+
+    &__head {
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    &__row {
+      grid-template-columns: 22px minmax(0, 1fr) auto;
+      column-gap: 8px;
+      row-gap: 7px;
+    }
+
+    &__track {
+      grid-column: 2 / -1;
+      grid-row: 2;
+    }
+
+    &__count {
+      grid-column: 3;
+      grid-row: 1;
+    }
+  }
+}

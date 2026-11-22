@@ -89,5 +89,42 @@ service cloud.firestore {
       allow write: if request.auth != null
         && isAdminEmail(request.auth.token.email);
     }
+
+    // 사이트 방문자 수: 문서마다 count 필드 하나.
+    // 문서 id는 'total'(누적) 또는 날짜(YYYY-MM-DD, 한국 시간 기준 하루 치).
+    // 읽기는 관리자만 — 숫자는 관리자 화면에서만 본다.
+    // 집계는 누구나 하되 한 번에 +1씩만 (줄이거나 지울 수 없다).
+    match /visits/{docId} {
+      allow read: if request.auth != null
+        && isAdminEmail(request.auth.token.email);
+
+      allow create: if (docId == 'total'
+          || docId.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}'))
+        && request.resource.data.keys().hasOnly(['count'])
+        && request.resource.data.count == 1;
+
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['count'])
+        && request.resource.data.count is int
+        && request.resource.data.count == resource.data.count + 1;
+    }
+
+    // 시별 조회수: 문서 id = 시 id, count 필드 하나.
+    // 읽기는 관리자만 — 숫자는 관리자 화면에서만 본다.
+    // 집계는 누구나 하되 한 번에 +1씩만, 실제로 있는 시에만 만들 수 있다.
+    // 삭제는 관리자만 (시를 지울 때 함께 정리).
+    match /poemViews/{poemId} {
+      allow read, delete: if request.auth != null
+        && isAdminEmail(request.auth.token.email);
+
+      allow create: if exists(/databases/$(database)/documents/poems/$(poemId))
+        && request.resource.data.keys().hasOnly(['count'])
+        && request.resource.data.count == 1;
+
+      allow update: if request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['count'])
+        && request.resource.data.count is int
+        && request.resource.data.count == resource.data.count + 1;
+    }
   }
 }

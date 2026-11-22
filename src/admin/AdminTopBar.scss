@@ -1,0 +1,110 @@
+@use '../styles/variables' as *;
+
+// 관리자 화면 공용 머리말 (브랜드 · 바로가기 줄 + 탭 줄)
+.admin-top {
+  background-color: $surface;
+  border-bottom: 1px solid $line;
+
+  &__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 20px;
+    flex-wrap: wrap;
+    padding: 18px clamp(20px, 4vw, 48px) 12px;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  &__mark {
+    font-family: $font-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: $accent;
+  }
+
+  &__brand-name {
+    font-family: $font-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: $ink;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+
+  &__link {
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-soft;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover {
+      color: $ink;
+    }
+  }
+
+  // 탭: 지금 보고 있는 화면에 밑줄
+  &__tabs {
+    display: flex;
+    gap: 28px;
+    padding: 0 clamp(20px, 4vw, 48px);
+  }
+
+  &__tab {
+    // 밑줄이 머리말의 아래 테두리 위에 겹쳐 보이도록 1px 내린다
+    margin-bottom: -1px;
+    padding: 8px 2px 12px;
+    font-family: $font-body;
+    font-size: 15px;
+    color: $ink-soft;
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+
+    &:hover {
+      color: $ink;
+    }
+
+    &--active {
+      font-weight: 700;
+      color: $ink;
+      border-bottom-color: $accent;
+    }
+  }
+
+  // 좁은 화면: 브랜드/바로가기를 위아래로 나눠 정렬
+  @media (max-width: 600px) {
+    &__bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 20px 10px;
+    }
+
+    &__actions {
+      gap: 18px;
+    }
+
+    &__tabs {
+      padding: 0 20px;
+    }
+  }
+}

@@ -13,7 +13,12 @@ import AdminLogin from './admin/AdminLogin'
 import AdminHome from './admin/AdminHome'
 import AdminPoemForm from './admin/AdminPoemForm'
 import AdminHomeSettings from './admin/AdminHomeSettings'
+import AdminStats from './admin/AdminStats'
 import RequireAuth from './admin/RequireAuth'
+import { countVisit } from './data/visitsRepo'
+
+// 어느 페이지로 들어오든 방문을 한 번 집계한다 (같은 브라우저는 하루 1회)
+void countVisit()
 
 const router = createBrowserRouter([
   { path: '/', element: <Home /> },
@@ -32,6 +37,14 @@ const router = createBrowserRouter([
         element: (
           <RequireAuth>
             <AdminHome />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: 'stats',
+        element: (
+          <RequireAuth>
+            <AdminStats />
           </RequireAuth>
         ),
       },

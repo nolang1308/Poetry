@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore'
 import { db } from '../firebase'
 import { removePoemsFromBooks } from './booksRepo'
+import { deletePoemViews } from './poemViewsRepo'
 import {
   isDataUrl,
   uploadImageReplacing,
@@ -121,6 +122,8 @@ export async function deletePoems(ids: string[]) {
   await removePoemsFromBooks(ids)
   // Storage에 올려 둔 표지도 함께 정리 (실패해도 삭제 흐름은 유지)
   await Promise.all(ids.map((id) => deleteImageFolder(`poems/${id}`)))
+  // 지운 시의 조회수 기록도 함께 정리
+  await deletePoemViews(ids)
 }
 
 // 시 본문 좋아요 ±1 (보안 규칙상 likes 필드만 단독 변경 허용)

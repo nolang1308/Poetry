@@ -1,0 +1,206 @@
+@use '../styles/variables' as *;
+
+// 방문자 통계: 보기 전환 타일 + 그래프 카드
+.visit-dash {
+  margin-top: 28px;
+
+  // 타일 네 개가 곧 보기 전환 버튼이다
+  &__tiles {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  &__tile {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+    padding: 16px 18px 14px;
+    font-family: $font-body;
+    text-align: left;
+    color: $ink;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover {
+      border-color: $accent-soft;
+    }
+
+    &:focus-visible {
+      outline: 2px solid $accent-soft;
+      outline-offset: 2px;
+    }
+
+    // 고른 보기: 테두리를 포인트 색으로, 아래에 굵은 줄
+    &--on,
+    &--on:hover {
+      border-color: $accent;
+      box-shadow: inset 0 -3px 0 $accent;
+    }
+  }
+
+  &__tile-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: $ink-soft;
+  }
+
+  &__tile--on &__tile-label {
+    color: $ink;
+  }
+
+  &__tile-value {
+    font-family: $font-serif;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  &__tile-caption {
+    font-size: 12px;
+    color: $ink-faint;
+  }
+
+  // 그래프 카드
+  &__card {
+    margin-top: 12px;
+    padding: 20px 20px 16px;
+    background-color: $surface;
+    border: 1px solid $line;
+    border-radius: 6px;
+  }
+
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__range {
+    margin: 4px 0 0;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-faint;
+  }
+
+  &__toggle {
+    flex-shrink: 0;
+    padding: 7px 12px;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+    background-color: transparent;
+    border: 1px solid $line;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+      color: $ink;
+      border-color: $accent-soft;
+    }
+  }
+
+  // 불러오는 중 · 비어 있음 · 오류 — 그래프와 같은 높이를 잡아 화면이 출렁이지 않게
+  &__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    margin: 0;
+    font-family: $font-body;
+    font-size: 14px;
+    color: $ink-faint;
+    text-align: center;
+  }
+
+  &__table-wrap {
+    max-height: 420px;
+    overflow-y: auto;
+    border-top: 1px solid $line;
+
+    &:focus-visible {
+      outline: 2px solid $accent-soft;
+      outline-offset: 2px;
+    }
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: $font-body;
+    font-size: 14px;
+
+    th,
+    td {
+      padding: 10px 4px;
+      border-bottom: 1px solid $line;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      font-size: 13px;
+      font-weight: 400;
+      color: $ink-faint;
+      text-align: left;
+      background-color: $surface;
+    }
+
+    tbody th {
+      font-weight: 400;
+      color: $ink-soft;
+      text-align: left;
+    }
+
+    // 숫자 열은 오른쪽으로 맞추고 자릿수 폭을 고르게
+    td,
+    thead th:last-child {
+      text-align: right;
+    }
+
+    td {
+      font-weight: 700;
+      color: $ink;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  // 좁은 화면: 타일을 2 × 2로 접는다
+  @media (max-width: 600px) {
+    &__tiles {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    &__tile {
+      padding: 14px 14px 12px;
+    }
+
+    &__tile-value {
+      font-size: 26px;
+    }
+
+    &__card {
+      padding: 16px 14px 12px;
+    }
+
+    &__empty {
+      min-height: 240px;
+    }
+  }
+}

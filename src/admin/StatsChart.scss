@@ -1,0 +1,120 @@
+@use '../styles/variables' as *;
+
+// 방문자 수 그래프. 데이터(막대·선)만 포인트 색을 쓰고,
+// 눈금선·축 글자는 바탕에 가까운 색으로 뒤로 물린다.
+.stats-chart {
+  position: relative;
+  width: 100%;
+  border-radius: 4px;
+  outline: none;
+
+  &:focus-visible {
+    box-shadow: 0 0 0 2px $surface, 0 0 0 4px $accent-soft;
+  }
+
+  &__svg {
+    display: block;
+    // 세로 스크롤은 그대로 두고, 가로로 쓸면 값을 훑어볼 수 있게 한다
+    touch-action: pan-y;
+    font-family: $font-body;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  &__grid {
+    stroke: $line;
+    stroke-width: 1;
+
+    // 기준선(0)만 한 단계 진하게
+    &--base {
+      stroke: $accent-soft;
+    }
+  }
+
+  &__tick {
+    fill: $ink-faint;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+
+    // 진행 중인 기간(오늘 · 이번 주 · 이번 달)
+    &--now {
+      fill: $ink;
+      font-weight: 700;
+    }
+  }
+
+  &__band {
+    fill: rgba($ink, 0.05);
+  }
+
+  &__bar {
+    fill: $accent;
+
+    &--active {
+      fill: #2c4238;
+    }
+  }
+
+  &__area {
+    fill: rgba($accent, 0.1);
+  }
+
+  &__line {
+    fill: none;
+    stroke: $accent;
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  &__cross {
+    stroke: $accent-soft;
+    stroke-width: 1;
+  }
+
+  // 점 둘레에 바탕색 테를 둘러 선과 겹쳐도 또렷하게
+  &__dot {
+    fill: $accent;
+    stroke: $surface;
+    stroke-width: 2;
+  }
+
+  &__value {
+    fill: $ink-soft;
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__tip {
+    position: absolute;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 7px 12px 8px;
+    font-family: $font-body;
+    white-space: nowrap;
+    color: $surface;
+    background-color: $ink;
+    border-radius: 6px;
+    box-shadow: 0 6px 16px -6px rgba($ink, 0.5);
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  &__tip-value {
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  &__tip-label {
+    font-size: 12px;
+    opacity: 0.75;
+  }
+}

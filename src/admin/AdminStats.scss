@@ -1,0 +1,29 @@
+@use '../styles/variables' as *;
+
+// 관리자 통계 탭 (틀은 시 관리 화면과 같은 폭·여백을 쓴다)
+.admin-stats {
+  min-height: 100vh;
+  background-color: $bg;
+
+  &__container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px clamp(20px, 4vw, 48px) 80px;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: $font-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: $ink;
+  }
+
+  &__sub {
+    margin: 6px 0 0;
+    font-family: $font-body;
+    font-size: 14px;
+    line-height: 1.5;
+    color: $ink-soft;
+  }
+}

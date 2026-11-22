@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAdmin } from './AdminContext'
+import { Link } from 'react-router-dom'
 import { usePoems } from '../hooks/usePoems'
 import { useBooks } from '../hooks/useBooks'
 import {
@@ -10,6 +9,11 @@ import {
 import { deletePoems } from '../data/poemsRepo'
 import { deleteBook } from '../data/booksRepo'
 import { migrateBase64Images } from './migrateImages'
+import { useVisits } from '../hooks/useVisits'
+import { usePoemViews } from '../hooks/usePoemViews'
+import { kstDay } from '../utils/visit'
+import AdminTopBar from './AdminTopBar'
+import VisitStats from './VisitStats'
 import {
   Check,
   Trash,
@@ -19,10 +23,21 @@ import {
   Search,
   Book,
   LayoutGrid,
+  SortIcon,
 } from '../components/icons'
 import './AdminHome.scss'
 
 const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, '')
+
+// 목록 정렬 방법. 기본은 등록순(최신부터)이고, 등록순만 방향을 뒤집을 수 있다.
+type AdminSort = 'date' | 'likes' | 'views' | 'title'
+
+const sortChips: { key: AdminSort; label: string }[] = [
+  { key: 'date', label: '등록순' },
+  { key: 'likes', label: '좋아요순' },
+  { key: 'views', label: '조회수순' },
+  { key: 'title', label: '가나다순' },
+]
 
 // 목록을 3열로 크게 볼지 여부 — 마지막 선택을 기억한다
 const COLS_KEY = 'admin-poems-3col'
@@ -36,10 +51,12 @@ function loadThreeCols(): boolean {
 }
 
 function AdminHome() {
-  const { logout } = useAdmin()
   const { poems, loading } = usePoems()
   const { books, loading: booksLoading } = useBooks()
-  const navigate = useNavigate()
+  // 요약 카드에는 오늘을 포함한 최근 7일 치만 있으면 된다
+  const visits = useVisits(kstDay(6))
+  // 시별 조회수 (시 id → 횟수). 받아오기 전에는 null
+  const { views: poemViews } = usePoemViews()
 
   // 예전 방식(base64)으로 저장된 사진이 남아 있으면 Storage로 옮긴다.
   // 목록이 다 준비된 뒤 한 번만 — 이미 옮긴 문서는 건너뛰므로 부담 없다.
@@ -50,6 +67,9 @@ function AdminHome() {
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [query, setQuery] = useState('')
+  const [sort, setSort] = useState<AdminSort>('date')
+  // 등록순의 방향 (false = 최신부터, true = 오래된 것부터)
+  const [dateAsc, setDateAsc] = useState(false)
   // 기본은 화면 폭에 맞춰 자동, 켜면 3열로 고정해 표지를 크게 본다
   const [threeCols, setThreeCols] = useState(loadThreeCols)
   // 묶음 선택은 필요할 때만 — 평소에는 표지에 선택 박스를 띄우지 않는다
@@ -78,6 +98,26 @@ function AdminHome() {
     ? poems.filter((p) => normalize(p.title).includes(q))
     : poems
   const filteredIds = filtered.map((p) => p.id)
+
+  // 화면에 그릴 순서. poems는 최신 등록순으로 오고, 정렬은 순서를 보존하므로
+  // 값이 같은 시끼리는 최신 등록이 앞에 온다.
+  const viewsOf = (id: string) => poemViews?.get(id) ?? 0
+  const sorted =
+    sort === 'likes'
+      ? [...filtered].sort((a, b) => Number(b.likes) - Number(a.likes))
+      : sort === 'views'
+        ? [...filtered].sort((a, b) => viewsOf(b.id) - viewsOf(a.id))
+        : sort === 'title'
+          ? [...filtered].sort((a, b) => a.title.localeCompare(b.title, 'ko'))
+          : dateAsc
+            ? [...filtered].reverse()
+            : filtered
+
+  // 등록순이 이미 켜진 상태에서 다시 누르면 방향이 뒤집힌다
+  const onSort = (key: AdminSort) => {
+    if (key === 'date' && sort === 'date') setDateAsc((v) => !v)
+    else setSort(key)
+  }
   const allSelected =
     filtered.length > 0 && filteredIds.every((id) => selected.has(id))
 
@@ -139,34 +179,9 @@ function AdminHome() {
     }
   }
 
-  const handleLogout = async () => {
-    await logout()
-    navigate('/admin/login')
-  }
-
   return (
     <div className="admin-home">
-      <header className="admin-home__top">
-        <div className="admin-home__brand">
-          <span className="admin-home__mark">詩</span>
-          <span className="admin-home__brand-name">권일원의 시 · 관리자</span>
-        </div>
-        <div className="admin-home__top-actions">
-          <Link to="/admin/home-settings" className="admin-home__link">
-            홈 화면 편집
-          </Link>
-          <Link to="/" className="admin-home__link">
-            사이트 보기
-          </Link>
-          <button
-            type="button"
-            className="admin-home__link"
-            onClick={handleLogout}
-          >
-            로그아웃
-          </button>
-        </div>
-      </header>
+      <AdminTopBar active="poems" />
 
       <div className="admin-home__container">
         <div className="admin-home__header">
@@ -191,6 +206,8 @@ function AdminHome() {
             </Link>
           </div>
         </div>
+
+        <VisitStats data={visits.data} error={visits.error} />
 
         {books.length > 0 && (
           <section className="admin-home__books">
@@ -235,6 +252,39 @@ function AdminHome() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+        </div>
+
+        <div className="admin-home__sort" role="group" aria-label="정렬">
+          <SortIcon size={16} className="admin-home__sort-icon" />
+          {sortChips.map((chip) => {
+            const active = sort === chip.key
+            const isDate = chip.key === 'date'
+            // 조회수는 받아온 뒤에야 정렬할 수 있다
+            const waiting = chip.key === 'views' && !poemViews
+            return (
+              <button
+                key={chip.key}
+                type="button"
+                className={
+                  'admin-home__sort-chip' +
+                  (active ? ' admin-home__sort-chip--on' : '')
+                }
+                aria-pressed={active}
+                disabled={waiting}
+                title={
+                  waiting
+                    ? '조회수를 아직 불러오지 못했습니다'
+                    : isDate && active
+                      ? '다시 누르면 순서가 뒤집힙니다'
+                      : undefined
+                }
+                onClick={() => onSort(chip.key)}
+              >
+                {chip.label}
+                {isDate && active && (dateAsc ? ' ↑' : ' ↓')}
+              </button>
+            )
+          })}
         </div>
 
         <div className="admin-home__toolbar">
@@ -349,7 +399,7 @@ function AdminHome() {
               'admin-home__grid' + (threeCols ? ' admin-home__grid--3' : '')
             }
           >
-            {filtered.map((poem) => {
+            {sorted.map((poem) => {
               const on = selected.has(poem.id)
               // 아직 어느 시집에도 담기지 않은 시
               const unfiled = !bookNumbers.has(poem.id)
@@ -412,6 +462,13 @@ function AdminHome() {
                     </p>
                     <p className="admin-card__meta">
                       {poem.date} · 좋아요 {poem.likes}
+                    </p>
+                    {/* 좁은 카드에서 잘리지 않도록 조회수는 따로 한 줄 */}
+                    <p className="admin-card__meta">
+                      조회{' '}
+                      {poemViews
+                        ? (poemViews.get(poem.id) ?? 0).toLocaleString('ko-KR')
+                        : '-'}
                     </p>
                   </div>
 
