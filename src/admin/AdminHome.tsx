@@ -14,6 +14,11 @@ import { kstDay } from '../utils/visit'
 import AdminTopBar from './AdminTopBar'
 import VisitStats from './VisitStats'
 import AdminBookList from './AdminBookList'
+import { useAdminSettings } from '../hooks/useAdminSettings'
+import {
+  updateAdminSettings,
+  type AdminPoemSort,
+} from '../data/adminSettingsRepo'
 import {
   Check,
   Trash,
@@ -28,11 +33,10 @@ import './AdminHome.scss'
 
 const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, '')
 
-// 목록 정렬 방법. 기본은 등록순(최신부터)이고, 등록순만 방향을 뒤집을 수 있다.
-type AdminSort = 'date' | 'likes' | 'views' | 'title'
-
-const sortChips: { key: AdminSort; label: string }[] = [
-  { key: 'date', label: '등록순' },
+// 목록 정렬 방법. 기본값은 관리자 공통 설정(settings/admin)에 저장된다.
+const sortChips: { key: AdminPoemSort; label: string }[] = [
+  { key: 'newest', label: '최신순' },
+  { key: 'oldest', label: '오래된순' },
   { key: 'likes', label: '좋아요순' },
   { key: 'views', label: '조회수순' },
   { key: 'title', label: '가나다순' },
@@ -66,9 +70,12 @@ function AdminHome() {
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [query, setQuery] = useState('')
-  const [sort, setSort] = useState<AdminSort>('date')
-  // 등록순의 방향 (false = 최신부터, true = 오래된 것부터)
-  const [dateAsc, setDateAsc] = useState(false)
+  // 직접 고르기 전(null)에는 관리자 공통 설정의 기본 정렬을 따른다
+  const { settings, loaded: settingsLoaded } = useAdminSettings()
+  const [sortPick, setSort] = useState<AdminPoemSort | null>(null)
+  const defaultSort = settings.adminPoemSort
+  const sort = sortPick ?? defaultSort
+  const [savingDefault, setSavingDefault] = useState(false)
   // 기본은 화면 폭에 맞춰 자동, 켜면 3열로 고정해 표지를 크게 본다
   const [threeCols, setThreeCols] = useState(loadThreeCols)
   // 묶음 선택은 필요할 때만 — 평소에는 표지에 선택 박스를 띄우지 않는다
@@ -108,14 +115,20 @@ function AdminHome() {
         ? [...filtered].sort((a, b) => viewsOf(b.id) - viewsOf(a.id))
         : sort === 'title'
           ? [...filtered].sort((a, b) => a.title.localeCompare(b.title, 'ko'))
-          : dateAsc
+          : sort === 'oldest'
             ? [...filtered].reverse()
             : filtered
 
-  // 등록순이 이미 켜진 상태에서 다시 누르면 방향이 뒤집힌다
-  const onSort = (key: AdminSort) => {
-    if (key === 'date' && sort === 'date') setDateAsc((v) => !v)
-    else setSort(key)
+  // 지금 보고 있는 정렬을 모든 관리자 공통 기본값으로 저장
+  const saveDefaultSort = async () => {
+    setSavingDefault(true)
+    try {
+      await updateAdminSettings({ adminPoemSort: sort })
+    } catch {
+      window.alert('기본 정렬을 저장하지 못했습니다.')
+    } finally {
+      setSavingDefault(false)
+    }
   }
   const allSelected =
     filtered.length > 0 && filteredIds.every((id) => selected.has(id))
@@ -216,7 +229,7 @@ function AdminHome() {
           <SortIcon size={16} className="admin-home__sort-icon" />
           {sortChips.map((chip) => {
             const active = sort === chip.key
-            const isDate = chip.key === 'date'
+            const isDefault = defaultSort === chip.key
             // 조회수는 받아온 뒤에야 정렬할 수 있다
             const waiting = chip.key === 'views' && !poemViews
             return (
@@ -232,17 +245,29 @@ function AdminHome() {
                 title={
                   waiting
                     ? '조회수를 아직 불러오지 못했습니다'
-                    : isDate && active
-                      ? '다시 누르면 순서가 뒤집힙니다'
+                    : isDefault
+                      ? '기본 정렬'
                       : undefined
                 }
-                onClick={() => onSort(chip.key)}
+                onClick={() => setSort(chip.key)}
               >
                 {chip.label}
-                {isDate && active && (dateAsc ? ' ↑' : ' ↓')}
+                {isDefault && (
+                  <span className="admin-home__sort-default" aria-hidden="true" />
+                )}
               </button>
             )
           })}
+          {sort !== defaultSort && (
+            <button
+              type="button"
+              className="admin-home__sort-save"
+              onClick={saveDefaultSort}
+              disabled={savingDefault}
+            >
+              {savingDefault ? '저장 중…' : '기본으로 설정'}
+            </button>
+          )}
         </div>
 
         <div className="admin-home__toolbar">
@@ -326,7 +351,7 @@ function AdminHome() {
           )}
         </div>
 
-        {loading ? (
+        {loading || !settingsLoaded ? (
           // 불러오는 동안 실제 카드와 같은 틀의 자리표시자를 은은히 깜빡여 보여준다
           <div
             className={

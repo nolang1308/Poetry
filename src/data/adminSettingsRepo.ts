@@ -5,14 +5,21 @@ import { db } from '../firebase'
 // 관리자 계정으로 열어도 같은 값이 적용된다. (쓰기는 관리자만 — 보안 규칙)
 export type PoemOrder = 'asc' | 'desc'
 
+// 시 관리 목록의 정렬 방법
+export type AdminPoemSort = 'newest' | 'oldest' | 'likes' | 'views' | 'title'
+const ADMIN_POEM_SORTS: AdminPoemSort[] = ['newest', 'oldest', 'likes', 'views', 'title']
+
 export interface AdminSettings {
   // 시집 만들기/수정의 시 선택 목록 기본 정렬
   // (asc = 오래된순, desc = 최신순)
   bookPoemOrder: PoemOrder
+  // 시 관리(관리자 홈) 목록의 기본 정렬
+  adminPoemSort: AdminPoemSort
 }
 
 export const defaultAdminSettings: AdminSettings = {
   bookPoemOrder: 'desc',
+  adminPoemSort: 'newest',
 }
 
 const ref = doc(db, 'settings', 'admin')
@@ -20,6 +27,9 @@ const ref = doc(db, 'settings', 'admin')
 function fromData(data: Record<string, unknown> | undefined): AdminSettings {
   return {
     bookPoemOrder: data?.bookPoemOrder === 'asc' ? 'asc' : 'desc',
+    adminPoemSort: ADMIN_POEM_SORTS.includes(data?.adminPoemSort as AdminPoemSort)
+      ? (data?.adminPoemSort as AdminPoemSort)
+      : defaultAdminSettings.adminPoemSort,
   }
 }
 

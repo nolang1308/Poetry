@@ -321,6 +321,36 @@
     }
   }
 
+  // 기본 정렬 표시 점 (칩 글자 오른쪽 위)
+  &__sort-default {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    margin-left: 4px;
+    vertical-align: super;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  // 지금 정렬을 기본값으로 저장 (기본값과 다를 때만 보인다)
+  &__sort-save {
+    padding: 4px 2px;
+    font-family: $font-body;
+    font-size: 12px;
+    color: $accent;
+    white-space: nowrap;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+
   // 툴바
   &__toolbar {
     display: flex;
