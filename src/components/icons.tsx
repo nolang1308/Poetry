@@ -77,6 +77,22 @@ export function ChevronRight({ size = 18, className }: IconProps) {
   return base(size, className, <path d="m9 18 6-6-6-6" />)
 }
 
+// 끌어서 옮기는 손잡이 (lucide grip-vertical)
+export function GripVertical({ size = 16, className }: IconProps) {
+  return base(
+    size,
+    className,
+    <>
+      <circle cx="9" cy="5" r="1" />
+      <circle cx="9" cy="12" r="1" />
+      <circle cx="9" cy="19" r="1" />
+      <circle cx="15" cy="5" r="1" />
+      <circle cx="15" cy="12" r="1" />
+      <circle cx="15" cy="19" r="1" />
+    </>,
+  )
+}
+
 export function Menu({ size = 24, className }: IconProps) {
   return base(size, className, (
     <>

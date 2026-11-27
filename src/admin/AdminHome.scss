@@ -117,6 +117,15 @@
     white-space: nowrap;
   }
 
+  // 공개 화면에서의 시집 번호 (1번이 맨 앞)
+  &__book-no {
+    margin-right: 6px;
+    font-family: $font-body;
+    font-size: 13px;
+    font-weight: 500;
+    color: $ink-faint;
+  }
+
   &__book-count {
     font-family: $font-body;
     font-size: 13px;
@@ -134,6 +143,94 @@
     .admin-card__btn {
       flex: none;
       padding: 8px 10px;
+    }
+  }
+
+  // 시집 목록 머리: 제목 + (순서를 바꿨을 때) 취소/저장
+  &__books-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+
+  &__books-hint {
+    font-family: $font-body;
+    font-size: 12px;
+    color: $ink-faint;
+  }
+
+  &__books-save {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .admin-card__btn {
+      padding: 7px 12px;
+    }
+
+    .admin-card__btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+  }
+
+  .admin-card__btn.admin-home__books-save-btn {
+    color: $surface;
+    background-color: $accent;
+    border-color: $accent;
+
+    &:hover:not(:disabled) {
+      color: $surface;
+      opacity: 0.9;
+    }
+  }
+
+  // 끌어서 옮기는 손잡이. 터치로 끄는 동안 화면이 스크롤되지 않게 한다.
+  &__book-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 32px;
+    margin: -4px -4px -4px -6px;
+    padding: 0;
+    color: $ink-faint;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    cursor: grab;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+
+    &:hover:not(:disabled),
+    &:focus-visible {
+      color: $ink;
+      background-color: $bg;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+  }
+
+  // 끌고 있는 시집 줄은 살짝 떠 보이게
+  &__book-row--dragging {
+    position: relative;
+    z-index: 1;
+    background-color: $surface;
+    border-radius: 4px;
+    box-shadow: 0 6px 18px rgba(43, 40, 35, 0.14);
+    cursor: grabbing;
+
+    .admin-home__book-handle {
+      color: $accent;
+      cursor: grabbing;
     }
   }
 

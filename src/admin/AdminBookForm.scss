@@ -52,7 +52,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    // 좁은 화면에서 버튼이 넘치면 다음 줄로 내린다
+    flex-wrap: wrap;
+    gap: 8px 12px;
     margin-top: 10px;
   }
 
@@ -64,13 +66,14 @@
     color: $accent;
   }
 
-  // 등록순 오름/내림차순 토글
-  // 전체 선택 · 등록순 토글을 오른쪽에 나란히
+  // 전체 선택 · 정렬(오래된순/최신순)을 오른쪽에 나란히
   &__list-btns {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     gap: 8px;
-    flex-shrink: 0;
+    margin-left: auto;
   }
 
   &__sort {
@@ -93,6 +96,66 @@
     &:disabled {
       opacity: 0.45;
       cursor: not-allowed;
+    }
+  }
+
+  // 시 선택 목록 정렬: 오래된순 | 최신순 (등록 시각 기준)
+  &__order-toggle {
+    display: inline-flex;
+    flex-shrink: 0;
+    padding: 2px;
+    border: 1px solid $line;
+    border-radius: 100px;
+  }
+
+  &__order-opt {
+    white-space: nowrap;
+    padding: 4px 10px;
+    font-family: $font-body;
+    font-size: 13px;
+    color: $ink-soft;
+    background: none;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+
+    &:hover:not(&--on) {
+      color: $accent;
+    }
+
+    &--on {
+      color: #fff;
+      background: $accent;
+    }
+  }
+
+  // 기본 정렬 표시 점 (버튼 글자 오른쪽 위)
+  &__order-default {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    margin-left: 4px;
+    vertical-align: super;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  // 지금 정렬을 기본값으로 저장 (기본값과 다를 때만 보인다)
+  &__order-save {
+    white-space: nowrap;
+    padding: 4px 2px;
+    font-family: $font-body;
+    font-size: 12px;
+    color: $accent;
+    background: none;
+    border: none;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
     }
   }
 

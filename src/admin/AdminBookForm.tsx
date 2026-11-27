@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { usePoems } from '../hooks/usePoems'
 import { useBooks } from '../hooks/useBooks'
+import { useAdminSettings } from '../hooks/useAdminSettings'
+import { updateAdminSettings } from '../data/adminSettingsRepo'
 import { addBook, updateBook, MAX_BOOK_POEMS } from '../data/booksRepo'
 import {
   buildRegistrationNumbers,
@@ -45,6 +47,7 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
   const editing = Boolean(id)
   const { poems, loading } = usePoems()
   const { books } = useBooks()
+  const { settings, loaded: settingsLoaded } = useAdminSettings()
   const [name, setName] = useState(initial.name)
   // 표지 제목 둘째 줄 (선택)
   const [name2, setName2] = useState(initial.name2 ?? '')
@@ -59,8 +62,12 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
   // 크롭 결과를 표지/마지막 장 중 어디에 반영할지
   const [cropTarget, setCropTarget] = useState<'cover' | 'last'>('cover')
   const [query, setQuery] = useState('')
-  // 시 선택 목록의 등록순 방향 (false = 최신부터 내림차순, true = 오래된 것부터)
-  const [dateAsc, setDateAsc] = useState(false)
+  // 시 선택 목록의 등록순 방향 (false = 최신순, true = 오래된순).
+  // 직접 고르기 전(null)에는 관리자 공통 설정의 기본값을 따른다.
+  const [dateAscPick, setDateAsc] = useState<boolean | null>(null)
+  const defaultAsc = settings.bookPoemOrder === 'asc'
+  const dateAsc = dateAscPick ?? defaultAsc
+  const [savingDefault, setSavingDefault] = useState(false)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -85,6 +92,19 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
       setError('')
     } catch {
       setError('이미지를 불러오지 못했습니다.')
+    }
+  }
+
+  // 지금 보고 있는 정렬을 모든 관리자 공통 기본값으로 저장
+  const saveDefaultOrder = async () => {
+    setSavingDefault(true)
+    try {
+      await updateAdminSettings({ bookPoemOrder: dateAsc ? 'asc' : 'desc' })
+      setError('')
+    } catch {
+      setError('기본 정렬을 저장하지 못했습니다.')
+    } finally {
+      setSavingDefault(false)
     }
   }
 
@@ -534,17 +554,52 @@ function BookForm({ id, initial }: { id?: string; initial: Book }) {
                   >
                     {allSelected ? '전체 해제' : '전체 선택'}
                   </button>
-                  <button
-                    type="button"
-                    className="admin-book-form__sort"
-                    onClick={() => setDateAsc((v) => !v)}
+                  <div
+                    className="admin-book-form__order-toggle"
+                    role="group"
+                    aria-label="시 목록 정렬"
                   >
-                    등록순 {dateAsc ? '↑ 오래된 것부터' : '↓ 최신부터'}
-                  </button>
+                    {[
+                      { asc: true, label: '오래된순' },
+                      { asc: false, label: '최신순' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.label}
+                        type="button"
+                        className={
+                          'admin-book-form__order-opt' +
+                          (dateAsc === opt.asc
+                            ? ' admin-book-form__order-opt--on'
+                            : '')
+                        }
+                        aria-pressed={dateAsc === opt.asc}
+                        onClick={() => setDateAsc(opt.asc)}
+                        title={defaultAsc === opt.asc ? '기본 정렬' : undefined}
+                      >
+                        {opt.label}
+                        {defaultAsc === opt.asc && (
+                          <span
+                            className="admin-book-form__order-default"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  {dateAsc !== defaultAsc && (
+                    <button
+                      type="button"
+                      className="admin-book-form__order-save"
+                      onClick={saveDefaultOrder}
+                      disabled={savingDefault}
+                    >
+                      {savingDefault ? '저장 중…' : '기본으로 설정'}
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {loading ? (
+              {loading || !settingsLoaded ? (
                 <p className="admin-home__empty">시를 불러오는 중…</p>
               ) : filtered.length === 0 ? (
                 <p className="admin-home__empty">

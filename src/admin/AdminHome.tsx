@@ -7,18 +7,17 @@ import {
   buildRegistrationNumbers,
 } from '../data/poemNumbers'
 import { deletePoems } from '../data/poemsRepo'
-import { deleteBook } from '../data/booksRepo'
 import { migrateBase64Images } from './migrateImages'
 import { useVisits } from '../hooks/useVisits'
 import { usePoemViews } from '../hooks/usePoemViews'
 import { kstDay } from '../utils/visit'
 import AdminTopBar from './AdminTopBar'
 import VisitStats from './VisitStats'
+import AdminBookList from './AdminBookList'
 import {
   Check,
   Trash,
   Plus,
-  PenLine,
   X,
   Search,
   Book,
@@ -156,15 +155,6 @@ function AdminHome() {
     }
   }
 
-  const removeBook = async (id: string, name: string) => {
-    if (!window.confirm(`시집 '${name}'을(를) 삭제할까요? (담긴 시는 지워지지 않습니다)`)) return
-    try {
-      await deleteBook(id)
-    } catch {
-      window.alert('삭제에 실패했습니다.')
-    }
-  }
-
   const deleteOne = async (id: string, title: string) => {
     if (!window.confirm(`'${title}'을(를) 삭제할까요?`)) return
     try {
@@ -209,39 +199,7 @@ function AdminHome() {
 
         <VisitStats data={visits.data} error={visits.error} />
 
-        {books.length > 0 && (
-          <section className="admin-home__books">
-            <h2 className="admin-home__books-title">시집 · {books.length}권</h2>
-            <ul className="admin-home__book-list">
-              {books.map((book) => (
-                <li key={book.id} className="admin-home__book-row">
-                  <Book size={16} className="admin-home__book-icon" />
-                  <span className="admin-home__book-name">{book.name}</span>
-                  <span className="admin-home__book-count">
-                    시 {book.poemIds.length}편
-                  </span>
-                  <div className="admin-home__book-actions">
-                    <Link
-                      to={`/admin/book/edit/${book.id}`}
-                      className="admin-card__btn"
-                    >
-                      <PenLine size={14} />
-                      수정
-                    </Link>
-                    <button
-                      type="button"
-                      className="admin-card__btn admin-card__btn--danger"
-                      onClick={() => removeBook(book.id, book.name)}
-                    >
-                      <Trash size={14} />
-                      삭제
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        {books.length > 0 && <AdminBookList books={books} />}
 
         <div className="admin-home__search">
           <Search size={18} className="admin-home__search-icon" />

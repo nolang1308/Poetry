@@ -8,6 +8,7 @@ import {
   getDocs,
   query,
   orderBy,
+  writeBatch,
   type DocumentData,
 } from 'firebase/firestore'
 import { db } from '../firebase'
@@ -32,9 +33,12 @@ export interface Book {
   lastImage?: string
 }
 
-// Firestore 문서(문서 id 포함)
+// Firestore 문서(문서 id 포함).
+// sortKey는 시집의 순서 값 — 처음엔 만든 시각(ms)이고, 관리자가 순서를
+// 바꿔 저장하면 시집들끼리 이 값을 새 순서대로 다시 나눠 갖는다. 시집 목록·시집 번호가 모두 이 값을 따른다.
 export interface BookDoc extends Book {
   id: string
+  sortKey: number
 }
 
 const booksCol = collection(db, 'books')
@@ -47,6 +51,7 @@ function fromDoc(id: string, data: DocumentData): BookDoc {
     poemIds: Array.isArray(data.poemIds) ? data.poemIds : [],
     image: data.image ?? '',
     lastImage: data.lastImage ?? '',
+    sortKey: Number(data.sortKey ?? 0),
   }
 }
 
@@ -126,6 +131,25 @@ export async function updateBook(id: string, data: Book) {
     image,
     lastImage,
   })
+}
+
+// 시집 순서 저장 (관리자만 — 보안 규칙). ordered는 공개 화면 순서(1번이 앞).
+// 지금 시집들이 가진 순서 값을 작은 것부터 새 순서대로 다시 나눠 주고,
+// 값이 바뀌는 시집만 한 묶음으로 고친다. 다른 필드(시·사진)는 그대로다.
+export async function saveBookOrder(ordered: BookDoc[]) {
+  const keys = ordered.map((b) => b.sortKey).sort((x, y) => x - y)
+  // 같은 값이 있으면 순서가 정해지지 않으므로 앞 값보다 항상 크게 벌린다
+  for (let i = 1; i < keys.length; i++) {
+    if (keys[i] <= keys[i - 1]) keys[i] = keys[i - 1] + 1
+  }
+  const batch = writeBatch(db)
+  let changed = 0
+  ordered.forEach((b, i) => {
+    if (b.sortKey === keys[i]) return
+    batch.update(doc(db, 'books', b.id), { sortKey: keys[i] })
+    changed++
+  })
+  if (changed > 0) await batch.commit()
 }
 
 export async function deleteBook(id: string) {
